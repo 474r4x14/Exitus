@@ -1,7 +1,7 @@
 ﻿import Tile from './Tile.js';
 export default class City
 {
-	constructor()
+	constructor(exitPoints)
 	{
 		// Array of all the tiles
 		/** @type {Tile[][]} */
@@ -28,6 +28,10 @@ export default class City
 			'east':[],
 			'west':[]
 		};
+
+		if (exitPoints !== undefined) {
+			this.exitPoints = exitPoints;
+		}
 
 		// The current side we're building up
 		// Let's start from the top
@@ -70,16 +74,16 @@ export default class City
 	checkExits()
 	{
 		// Randomly generate the exits if they weren't predefined
-		if (!this.exitPoints['north']) {
+		if (this.exitPoints['north'].length === 0) {
 			this.exitPoints['north'] = this.generateExits(this.width);
 		}
-		if (!this.exitPoints['south']) {
+		if (this.exitPoints['south'].length === 0) {
 			this.exitPoints['south'] = this.generateExits(this.width);
 		}
-		if (!this.exitPoints['east']) {
+		if (this.exitPoints['east'].length === 0) {
 			this.exitPoints['east'] = this.generateExits(this.height);
 		}
-		if (!this.exitPoints['west']) {
+		if (this.exitPoints['west'].length === 0) {
 			this.exitPoints['west'] = this.generateExits(this.height);
 		}
 
