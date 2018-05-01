@@ -1,21 +1,63 @@
 import City from './City.js';
-import Tile from "./Tile.js";
+
+var city1 = new City();
+var city2 = new City(1,0);
+city1.generate();
+city2.generate();
+// Let's draw the map
+let ctx;
+var spriteset;
 window.onload = function(e) {
-    var city = new City();
 
-    // Let's draw the map
-    let size = 5;
     let canvas = document.getElementById("exitus");
-    let ctx = canvas.getContext("2d");
-    for (let y = 0; y < city.tiles.length; y++) {
-        for (let x = 0; x < city.tiles[0].length; x++) {
-            ctx.fillStyle = "#FF0000";
-            if (city.tiles[y][x].type === Tile.TYPE_BUILDING) {
-                ctx.fillStyle = "#00FF00";
-            }
-            console.log(size*x,size*y,(size*x)+size,(size*y)+size);
-            ctx.fillRect(size*x,size*y,(size*x)+size,(size*y)+size);
 
+    var mouseDown = false;
+    var startX = 0;
+    var startY = 0;
+
+    canvas.onmousedown = function(e)
+    {
+        mouseDown = true;
+        console.log(e);
+        startX = e.clientX;
+        startY = e.clientY;
+    };
+
+    canvas.onmouseup = function(e)
+    {
+        mouseDown = false;
+    };
+
+    canvas.onmousemove = function(e)
+    {
+        if (mouseDown === true) {
+            City.transX += e.clientX - startX;
+            City.transY += e.clientY - startY;
+            startX = e.clientX;
+            startY = e.clientY;
         }
     }
+
+    ctx = canvas.getContext("2d");
+    requestAnimationFrame(redraw);
+
 };
+
+
+function redraw()
+{
+    let canvas = document.getElementById("exitus");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let y = 0; y < city1.tiles.length; y++) {
+        for (let x = 0; x < city1.tiles[0].length; x++) {
+            city1.tiles[y][x].draw(ctx);
+        }
+    }
+    for (let y = 0; y < city2.tiles.length; y++) {
+        for (let x = 0; x < city2.tiles[0].length; x++) {
+            city2.tiles[y][x].draw(ctx);
+        }
+    }
+    requestAnimationFrame(redraw);
+}
+

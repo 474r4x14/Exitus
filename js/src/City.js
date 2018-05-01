@@ -1,7 +1,9 @@
 ﻿import Tile from './Tile.js';
+import Point from "./utils/Point.js";
+
 export default class City
 {
-	constructor(exitPoints)
+	constructor(x=0,y=0)
 	{
 		// Array of all the tiles
 		/** @type {Tile[][]} */
@@ -29,10 +31,6 @@ export default class City
 			'west':[]
 		};
 
-		if (exitPoints !== undefined) {
-			this.exitPoints = exitPoints;
-		}
-
 		// The current side we're building up
 		// Let's start from the top
 		this.activeSide = City.SIDE_NORTH;
@@ -43,18 +41,36 @@ export default class City
 		// Array containing the buildings details
 		this.buildings = [];
 
-		// Let's generate a map
-		this.generate();
+		this.worldLoc = new Point(x,y);
 
 	}
 
 	generate()
 	{
-		this.cleanUp();
+		if (City.world[this.worldLoc.y] === undefined) {
+            City.world[this.worldLoc.y] = [];
+		}
+		// Let's check if the surrounding world exists
+		if (City.world[this.worldLoc.y-1] !== undefined && City.world[this.worldLoc.y-1][this.worldLoc.x] !== undefined) {
+            this.exitPoints.north = City.world[this.worldLoc.y-1][this.worldLoc.x].exitPoints.south;
+		}
+		if (City.world[this.worldLoc.y+1] !== undefined && City.world[this.worldLoc.y+1][this.worldLoc.x] !== undefined) {
+            this.exitPoints.south = City.world[this.worldLoc.y+1][this.worldLoc.x].exitPoints.north;
+		}
+		if (City.world[this.worldLoc.y] !== undefined && City.world[this.worldLoc.y][this.worldLoc.x+1] !== undefined) {
+            this.exitPoints.east = City.world[this.worldLoc.y][this.worldLoc.x+1].exitPoints.west;
+		}
+		if (City.world[this.worldLoc.y] !== undefined && City.world[this.worldLoc.y][this.worldLoc.x-1] !== undefined) {
+            this.exitPoints.west = City.world[this.worldLoc.y][this.worldLoc.x-1].exitPoints.east;
+		}
+
+		// this.cleanUp();
 		this.createMap();
 		this.checkExits();
 		this.process();
+		City.world[this.worldLoc.y][this.worldLoc.x] = this;
 	}
+
 
 	createMap()
 	{
@@ -62,9 +78,7 @@ export default class City
 		for (let i = 0; i < this.height; i++) {
 			this.tiles.push([]);
 			for (let j = 0; j < this.width; j++) {
-				let tile = new Tile(Tile.TYPE_EMPTY);
-				tile.x = j*4;
-				tile.y = i*4;
+				let tile = new Tile(j, i, Tile.TYPE_EMPTY, this.worldLoc);
 				this.tiles[i].push(tile);
 			}
 		}
@@ -463,3 +477,11 @@ City.SIDE_NORTH = 1;
 City.SIDE_SOUTH = 2;
 City.SIDE_EAST = 3;
 City.SIDE_WEST = 4;
+
+City.worldLoc = new Point();
+/** @type {City[][]} */
+City.world = [];
+// World translation
+City.transX = 0;
+City.transY = 0;
+
