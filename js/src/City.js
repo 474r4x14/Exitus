@@ -225,6 +225,18 @@ export default class City
 		let xPos = xLoc;
 		let yPos = yLoc;
 
+		let buildingMin = this.buildingMin;
+		let buildingMax = this.buildingMax;
+
+		if (
+            (this.activeSide === City.SIDE_EAST && xLoc === this.width-1) ||
+            (this.activeSide === City.SIDE_WEST && xLoc === 0) ||
+            (this.activeSide === City.SIDE_SOUTH && yLoc === this.height-1) ||
+            (this.activeSide === City.SIDE_NORTH && yLoc === 0)
+        ) {
+            buildingMin /=2;
+            buildingMax /=2;
+        }
 		// Let's check the first dimention
 
 		while (this.isTileEmpty(xPos,yPos)) {
@@ -305,26 +317,26 @@ export default class City
 			this.activeSide === City.SIDE_NORTH &&
 			(yPos - yLoc) > 10
 		) {
-			yPos = yLoc + Math.floor( this.rand.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
+			yPos = yLoc + Math.floor( this.rand.random()*buildingMin+(buildingMax-buildingMin));
 
 		}else if (
 			this.activeSide === City.SIDE_SOUTH &&
 			(yLoc - yPos) > 10
 		) {
-			yPos = yLoc - Math.floor( this.rand.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
+			yPos = yLoc - Math.floor( this.rand.random()*buildingMin+(buildingMax-buildingMin));
 
 		}else if (
 			this.activeSide === City.SIDE_EAST &&
 			(xLoc - xPos) > 10
 		) {
-			xPos = xLoc - Math.floor( this.rand.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
+			xPos = xLoc - Math.floor( this.rand.random()*buildingMin+(buildingMax-buildingMin));
 
 		}else if (
 			this.activeSide === City.SIDE_WEST &&
 			(xPos - xLoc) > 10
 
 		) {
-			xPos = xLoc + Math.floor( this.rand.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
+			xPos = xLoc + Math.floor( this.rand.random()*buildingMin+(buildingMax-buildingMin));
 		}
 
 		if (xLoc !== xPos) {
