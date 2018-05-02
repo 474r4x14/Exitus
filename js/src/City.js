@@ -1,12 +1,14 @@
 ﻿import Tile from './Tile.js';
 import Point from "./utils/Point.js";
+import SeededRand from "./utils/SeededRand.js";
+
 
 export default class City
 {
-	constructor(x=0,y=0)
+	constructor(x=0,y=0, seed=0)
 	{
 		// Array of all the tiles
-		/** @type {Tile[][]} */
+		/** @type {Array<Array<Tile>>} */
 		this.tiles = [];
 
 		// Visual display of the map
@@ -42,7 +44,9 @@ export default class City
 		this.buildings = [];
 
 		this.worldLoc = new Point(x,y);
-
+		this.rand = new SeededRand(seed);
+		// The exit points have their own random seed as they might not be set so this prevents inconsistencies
+		this.exitRand = new SeededRand(this.rand.random());
 	}
 
 	generate()
@@ -129,7 +133,7 @@ export default class City
 		let arrReturn = [];
 		let tmpLoc = 0;
 		while (tmpLoc < length) {
-			tmpLoc += Math.floor( Math.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
+			tmpLoc += Math.floor( this.exitRand.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
 			if (tmpLoc < length-3) {
 				arrReturn.push(tmpLoc);
 			}
@@ -239,22 +243,22 @@ export default class City
 			this.activeSide === City.SIDE_NORTH &&
 			(xPos - xLoc) > 10
 		) {
-			xPos = xLoc + Math.floor( Math.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
+			xPos = xLoc + Math.floor( this.rand.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
 		}else if (
 			this.activeSide === City.SIDE_SOUTH &&
 			(xLoc - xPos) > 10
 		) {
-			xPos = xLoc - Math.floor( Math.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
+			xPos = xLoc - Math.floor( this.rand.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
 		}else if (
 			this.activeSide === City.SIDE_EAST &&
 			(yPos - yLoc) > 10
 		) {
-			yPos = yLoc + Math.floor( Math.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
+			yPos = yLoc + Math.floor( this.rand.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
 		}else if (
 			this.activeSide === City.SIDE_WEST &&
 			(yLoc - yPos) > 10
 		) {
-			yPos = yLoc - Math.floor( Math.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
+			yPos = yLoc - Math.floor( this.rand.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
 		}
 
 		let tmpDimention;//:int;
@@ -301,26 +305,26 @@ export default class City
 			this.activeSide === City.SIDE_NORTH &&
 			(yPos - yLoc) > 10
 		) {
-			yPos = yLoc + Math.floor( Math.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
+			yPos = yLoc + Math.floor( this.rand.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
 
 		}else if (
 			this.activeSide === City.SIDE_SOUTH &&
 			(yLoc - yPos) > 10
 		) {
-			yPos = yLoc - Math.floor( Math.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
+			yPos = yLoc - Math.floor( this.rand.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
 
 		}else if (
 			this.activeSide === City.SIDE_EAST &&
 			(xLoc - xPos) > 10
 		) {
-			xPos = xLoc - Math.floor( Math.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
+			xPos = xLoc - Math.floor( this.rand.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
 
 		}else if (
 			this.activeSide === City.SIDE_WEST &&
 			(xPos - xLoc) > 10
 
 		) {
-			xPos = xLoc + Math.floor( Math.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
+			xPos = xLoc + Math.floor( this.rand.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
 		}
 
 		if (xLoc !== xPos) {
@@ -485,7 +489,7 @@ City.SIDE_EAST = 3;
 City.SIDE_WEST = 4;
 
 City.worldLoc = new Point();
-/** @type {City[][]} */
+/** @type {Array<Array<City>>} */
 City.world = [];
 // World translation
 City.transX = 0;
