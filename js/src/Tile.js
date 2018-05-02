@@ -1,4 +1,5 @@
 ﻿import City from './City.js';
+import Spriteset from './Spriteset.js';
 export default class Tile
 {
     /**
@@ -8,26 +9,73 @@ export default class Tile
      * @param type {int}
      * @param loc {Point}
      */
-    constructor(x, y, type, loc)
+    constructor(x=0, y=0, type=0, loc=null)
     {
         this.x = x;
         this.y = y;
         this.type = type;
         this.loc = loc;
+
+        this.neighbours = {
+            north:null,
+            south:null,
+            east:null,
+            west:null
+        }
+    }
+
+    // These are used to know what the neighbouring tiles are
+    set north(tile)
+    {
+        this.neighbours.north = tile;
+        tile.neighbours.south = this;
+    }
+
+    set south(tile)
+    {
+        this.neighbours.south = tile;
+        tile.neighbours.north = this;
+    }
+
+    set east(tile)
+    {
+        this.neighbours.east = tile;
+        tile.neighbours.west = this;
+    }
+
+    set west(tile)
+    {
+        this.neighbours.west = tile;
+        tile.neighbours.east = this;
     }
 
     draw(context)
     {
-        context.fillStyle = "#FF0000";
+        let spriteSize = 64;
         if (this.type === Tile.TYPE_BUILDING) {
-            context.fillStyle = "#00FF00";
-        }
-        // console.log(size*x,size*y,(size*x)+size,(size*y)+size);
-        context.fillRect((this.loc.x*50*Tile.SIZE)+(Tile.SIZE * this.x) + City.transX, (this.loc.y*50*Tile.SIZE)+(Tile.SIZE * this.y) + City.transY, (Tile.SIZE * this.x) + Tile.SIZE + City.transX, (Tile.SIZE * this.y) + Tile.SIZE + City.transY);
+            context.drawImage(Spriteset.img, spriteSize*2,spriteSize,spriteSize,spriteSize, (this.loc.x*50*Tile.SIZE)+(Tile.SIZE * this.x) + City.transX, (this.loc.y*50*Tile.SIZE)+(Tile.SIZE * this.y) + City.transY, Tile.SIZE, Tile.SIZE);
+        } else {
 
+            let tileId = 0;
+            if (this.neighbours.north !== null && this.neighbours.north.type === Tile.TYPE_ROAD) {
+                tileId += 1;
+            }
+            if (this.neighbours.east !== null && this.neighbours.east.type === Tile.TYPE_ROAD) {
+                tileId += 2;
+            }
+            if (this.neighbours.south !== null && this.neighbours.south.type === Tile.TYPE_ROAD) {
+                tileId += 4;
+            }
+            if (this.neighbours.west !== null && this.neighbours.west.type === Tile.TYPE_ROAD) {
+                tileId += 8;
+            }
+            let spriteX = tileId%4;
+            let spriteY = ((tileId-spriteX)/4);
+            context.drawImage(Spriteset.img, (spriteX)*spriteSize,(spriteY)*spriteSize,spriteSize,spriteSize, (this.loc.x*50*Tile.SIZE)+(Tile.SIZE * this.x) + City.transX, (this.loc.y*50*Tile.SIZE)+(Tile.SIZE * this.y) + City.transY, Tile.SIZE, Tile.SIZE);
+        }
     }
 };
 Tile.TYPE_EMPTY = 0;
 Tile.TYPE_BUILDING = 1;
 Tile.TYPE_ROAD = 2;
-Tile.SIZE = 5;
+Tile.SIZE = 64;

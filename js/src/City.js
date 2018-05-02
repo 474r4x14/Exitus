@@ -79,6 +79,12 @@ export default class City
 			this.tiles.push([]);
 			for (let j = 0; j < this.width; j++) {
 				let tile = new Tile(j, i, Tile.TYPE_EMPTY, this.worldLoc);
+				if (j > 0) {
+					tile.west = this.tiles[i][j-1];
+				}
+				if (i > 0) {
+					tile.north = this.tiles[i-1][j];
+				}
 				this.tiles[i].push(tile);
 			}
 		}

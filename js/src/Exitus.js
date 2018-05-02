@@ -1,5 +1,7 @@
 import City from './City.js';
+import Spriteset from "./Spriteset.js";
 
+var isSpriteLoaded = false;
 var city1 = new City();
 var city2 = new City(1,0);
 city1.generate();
@@ -10,6 +12,8 @@ var spriteset;
 window.onload = function(e) {
 
     let canvas = document.getElementById("exitus");
+
+    spriteset = new Spriteset(spriteLoaded);
 
     var mouseDown = false;
     var startX = 0;
@@ -43,6 +47,9 @@ window.onload = function(e) {
 
 };
 
+    function spriteLoaded() {
+        isSpriteLoaded = true;
+    }
 
 function redraw()
 {
@@ -58,6 +65,6 @@ function redraw()
             city2.tiles[y][x].draw(ctx);
         }
     }
-    requestAnimationFrame(redraw);
+        requestAnimationFrame(redraw);
 }
 
