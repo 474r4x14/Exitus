@@ -27,12 +27,12 @@ export default class City
 		// Exit points, can be predefined or randomly generated
 		this.exitPoints = {
 			// 'north':[10,20,30,40],
-			'north':[],
-			'south':[],
-			'east':[],
-			'west':[]
-		};
+			north:[],
+			south:[],
+			east:[],
+			west:[]
 
+		};
 		// The current side we're building up
 		// Let's start from the top
 		this.activeSide = City.SIDE_NORTH;
@@ -98,32 +98,32 @@ export default class City
 	checkExits()
 	{
 		// Randomly generate the exits if they weren't predefined
-		if (this.exitPoints['north'].length === 0) {
-			this.exitPoints['north'] = this.generateExits(this.width);
+		if (this.exitPoints.north.length === 0) {
+			this.exitPoints.north = this.generateExits(this.width);
 		}
-		if (this.exitPoints['south'].length === 0) {
-			this.exitPoints['south'] = this.generateExits(this.width);
+		if (this.exitPoints.south.length === 0) {
+			this.exitPoints.south = this.generateExits(this.width);
 		}
-		if (this.exitPoints['east'].length === 0) {
-			this.exitPoints['east'] = this.generateExits(this.height);
+		if (this.exitPoints.east.length === 0) {
+			this.exitPoints.east = this.generateExits(this.height);
 		}
-		if (this.exitPoints['west'].length === 0) {
-			this.exitPoints['west'] = this.generateExits(this.height);
+		if (this.exitPoints.west.length === 0) {
+			this.exitPoints.west = this.generateExits(this.height);
 		}
 
 		// Draw the exits on the map
 		let i;
-		for(i=0;i<this.exitPoints['north'].length;i++) {
-			this.tiles[0][this.exitPoints['north'][i]].type = Tile.TYPE_ROAD;
+		for(i=0;i<this.exitPoints.north.length;i++) {
+			this.tiles[0][this.exitPoints.north[i]].type = Tile.TYPE_ROAD;
 		}
-		for(i=0;i<this.exitPoints['south'].length;i++) {
-			this.tiles[this.height-1][this.exitPoints['south'][i]].type = Tile.TYPE_ROAD;
+		for(i=0;i<this.exitPoints.south.length;i++) {
+			this.tiles[this.height-1][this.exitPoints.south[i]].type = Tile.TYPE_ROAD;
 		}
-		for(i=0;i<this.exitPoints['east'].length;i++) {
-			this.tiles[this.exitPoints['east'][i]][this.width-1].type = Tile.TYPE_ROAD;
+		for(i=0;i<this.exitPoints.east.length;i++) {
+			this.tiles[this.exitPoints.east[i]][this.width-1].type = Tile.TYPE_ROAD;
 		}
-		for(i=0;i<this.exitPoints['west'].length;i++) {
-			this.tiles[this.exitPoints['west'][i]][0].type = Tile.TYPE_ROAD;
+		for(i=0;i<this.exitPoints.west.length;i++) {
+			this.tiles[this.exitPoints.west[i]][0].type = Tile.TYPE_ROAD;
 		}
 	}
 
