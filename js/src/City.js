@@ -1,7 +1,6 @@
-﻿import Tile from './Tile.js';
-import Point from "./utils/Point.js";
-import SeededRand from "./utils/SeededRand.js";
-
+﻿import Tile from './Tile';
+import Point from "./utils/Point";
+import SeededRand from "./utils/SeededRand";
 
 export default class City
 {

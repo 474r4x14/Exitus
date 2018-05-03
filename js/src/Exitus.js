@@ -1,5 +1,5 @@
-import City from './City.js';
-import Spriteset from "./Spriteset.js";
+import City from './City';
+import Spriteset from "./Spriteset";
 
 var isSpriteLoaded = false;
 var city1 = new City();
