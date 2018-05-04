@@ -197,26 +197,30 @@ export default class City
         }
 		for (let y =0; y < this.tiles.length; y++) {
 			for (let x = 0; x < this.tiles[y].length; x++) {
-				// It's a road corner
-				if (
-					this.tiles[y][x].roadId === 3 ||
-					this.tiles[y][x].roadId === 6 ||
-					this.tiles[y][x].roadId === 7 ||
-					this.tiles[y][x].roadId === 9 ||
-					this.tiles[y][x].roadId === 11 ||
-					this.tiles[y][x].roadId === 12 ||
-					this.tiles[y][x].roadId === 13 ||
-					this.tiles[y][x].roadId === 14
-				) {
-					// Just create a single square poly
-                    this.tiles[y][x].roadProcessed = true;
-					var roadLoc = new Point(x,y);
-					var road = new Road(roadLoc, roadLoc, this.worldLoc);
-					this.roads.push(road);
-				} else {
-					// It's a straight piece of road, let's find siblings!
-
-				}
+				if (this.tiles[y][x].type === Tile.TYPE_ROAD) {
+					var roadLoc = new Point(x, y);
+                    // It's a road corner
+                    if (
+                        this.tiles[y][x].roadId === 3 ||
+                        this.tiles[y][x].roadId === 6 ||
+                        this.tiles[y][x].roadId === 7 ||
+                        this.tiles[y][x].roadId === 9 ||
+                        this.tiles[y][x].roadId === 11 ||
+                        this.tiles[y][x].roadId === 12 ||
+                        this.tiles[y][x].roadId === 13 ||
+                        this.tiles[y][x].roadId === 14
+                    ) {
+                        // Just create a single square poly
+                        this.tiles[y][x].roadProcessed = true;
+                        var road = new Road(roadLoc, roadLoc, this.worldLoc);
+                        this.roads.push(road);
+                    } else if (this.tiles[y][x].roadProcessed === false) {
+                        // It's a straight piece of road, let's find siblings!
+                        let destPoint = this.tiles[y][x].followRoad();
+                        var road = new Road(roadLoc, destPoint, this.worldLoc);
+                        this.roads.push(road);
+                    }
+                }
 			}
 		}
 	}
