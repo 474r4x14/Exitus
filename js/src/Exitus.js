@@ -12,6 +12,8 @@ var spriteset;
 window.onload = function(e) {
 
     let canvas = document.getElementById("exitus");
+    canvas.width = document.body.clientWidth; //document.width is obsolete
+    canvas.height = document.body.clientHeight; //document.height is obsolete
 
     spriteset = new Spriteset(spriteLoaded);
 
