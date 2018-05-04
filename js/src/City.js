@@ -1,4 +1,5 @@
-﻿import Tile from './Tile';
+﻿import Road from './Road';
+import Tile from './Tile';
 import Point from "./utils/Point";
 import SeededRand from "./utils/SeededRand";
 
@@ -41,6 +42,10 @@ export default class City
 
 		// Array containing the buildings details
 		this.buildings = [];
+
+		// Array containing the road details
+        /** @type {Array<Road>} */
+		this.roads = [];
 
 		this.worldLoc = new Point(x,y);
 		this.rand = new SeededRand(seed);
@@ -190,6 +195,30 @@ export default class City
                 }
             }
         }
+		for (let y =0; y < this.tiles.length; y++) {
+			for (let x = 0; x < this.tiles[y].length; x++) {
+				// It's a road corner
+				if (
+					this.tiles[y][x].roadId === 3 ||
+					this.tiles[y][x].roadId === 6 ||
+					this.tiles[y][x].roadId === 7 ||
+					this.tiles[y][x].roadId === 9 ||
+					this.tiles[y][x].roadId === 11 ||
+					this.tiles[y][x].roadId === 12 ||
+					this.tiles[y][x].roadId === 13 ||
+					this.tiles[y][x].roadId === 14
+				) {
+					// Just create a single square poly
+                    this.tiles[y][x].roadProcessed = true;
+					var roadLoc = new Point(x,y);
+					var road = new Road(roadLoc, roadLoc, this.worldLoc);
+					this.roads.push(road);
+				} else {
+					// It's a straight piece of road, let's find siblings!
+
+				}
+			}
+		}
 	}
 
 	// Finds empty tiles & populates with a building

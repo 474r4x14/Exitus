@@ -23,6 +23,7 @@ export default class Tile
             west:null
         }
         this.roadId = 0;
+        this.roadProcessed = false;
     }
 
     // These are used to know what the neighbouring tiles are
@@ -52,18 +53,18 @@ export default class Tile
 
     setRoadType()
     {
-            if (this.neighbours.north !== null && this.neighbours.north.type === Tile.TYPE_ROAD) {
+        if (this.neighbours.north !== null && this.neighbours.north.type === Tile.TYPE_ROAD) {
             this.roadId += 1;
-            }
-            if (this.neighbours.east !== null && this.neighbours.east.type === Tile.TYPE_ROAD) {
+        }
+        if (this.neighbours.east !== null && this.neighbours.east.type === Tile.TYPE_ROAD) {
             this.roadId += 2;
-            }
-            if (this.neighbours.south !== null && this.neighbours.south.type === Tile.TYPE_ROAD) {
+        }
+        if (this.neighbours.south !== null && this.neighbours.south.type === Tile.TYPE_ROAD) {
             this.roadId += 4;
-            }
-            if (this.neighbours.west !== null && this.neighbours.west.type === Tile.TYPE_ROAD) {
+        }
+        if (this.neighbours.west !== null && this.neighbours.west.type === Tile.TYPE_ROAD) {
             this.roadId += 8;
-            }
+        }
     }
 
     draw(context)
