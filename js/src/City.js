@@ -71,6 +71,7 @@ export default class City
 		this.createMap();
 		this.checkExits();
 		this.process();
+		this.processRoads();
 		City.world[this.worldLoc.y][this.worldLoc.x] = this;
 	}
 
