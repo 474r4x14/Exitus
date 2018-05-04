@@ -22,6 +22,7 @@ export default class Tile
             east:null,
             west:null
         }
+        this.roadId = 0;
     }
 
     // These are used to know what the neighbouring tiles are
@@ -49,6 +50,22 @@ export default class Tile
         tile.neighbours.east = this;
     }
 
+    setRoadType()
+    {
+            if (this.neighbours.north !== null && this.neighbours.north.type === Tile.TYPE_ROAD) {
+            this.roadId += 1;
+            }
+            if (this.neighbours.east !== null && this.neighbours.east.type === Tile.TYPE_ROAD) {
+            this.roadId += 2;
+            }
+            if (this.neighbours.south !== null && this.neighbours.south.type === Tile.TYPE_ROAD) {
+            this.roadId += 4;
+            }
+            if (this.neighbours.west !== null && this.neighbours.west.type === Tile.TYPE_ROAD) {
+            this.roadId += 8;
+            }
+    }
+
     draw(context)
     {
         let spriteSize = 64;
@@ -56,21 +73,8 @@ export default class Tile
             context.drawImage(Spriteset.img, spriteSize*2,spriteSize,spriteSize,spriteSize, (this.loc.x*50*Tile.SIZE)+(Tile.SIZE * this.x) + City.transX, (this.loc.y*50*Tile.SIZE)+(Tile.SIZE * this.y) + City.transY, Tile.SIZE, Tile.SIZE);
         } else {
 
-            let tileId = 0;
-            if (this.neighbours.north !== null && this.neighbours.north.type === Tile.TYPE_ROAD) {
-                tileId += 1;
-            }
-            if (this.neighbours.east !== null && this.neighbours.east.type === Tile.TYPE_ROAD) {
-                tileId += 2;
-            }
-            if (this.neighbours.south !== null && this.neighbours.south.type === Tile.TYPE_ROAD) {
-                tileId += 4;
-            }
-            if (this.neighbours.west !== null && this.neighbours.west.type === Tile.TYPE_ROAD) {
-                tileId += 8;
-            }
-            let spriteX = tileId%4;
-            let spriteY = ((tileId-spriteX)/4);
+            let spriteX = this.roadId%4;
+            let spriteY = ((this.roadId-spriteX)/4);
             context.drawImage(Spriteset.img, (spriteX)*spriteSize,(spriteY)*spriteSize,spriteSize,spriteSize, (this.loc.x*50*Tile.SIZE)+(Tile.SIZE * this.x) + City.transX, (this.loc.y*50*Tile.SIZE)+(Tile.SIZE * this.y) + City.transY, Tile.SIZE, Tile.SIZE);
         }
     }

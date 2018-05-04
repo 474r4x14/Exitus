@@ -178,6 +178,19 @@ export default class City
 		}
 	}
 
+	// Let's go through the roads to build a poly map
+	processRoads()
+	{
+        // Generate the road IDs
+        for (let y = 0; y < this.tiles.length; y++) {
+            for (let x = 0; x < this.tiles[y].length; x++) {
+                if (this.tiles[y][x].type === Tile.TYPE_ROAD) {
+                    this.tiles[y][x].setRoadType();
+                }
+            }
+        }
+	}
+
 	// Finds empty tiles & populates with a building
 	scanSide()
 	{
