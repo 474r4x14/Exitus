@@ -42,9 +42,9 @@ window.onload = function(e) {
         if (mouseDownLoc.x === startX && mouseDownLoc.y === startY) {
             if (startClick === null) {
                 path = [];
-                startClick = new Point(e.clientX+City.transX, e.clientY+City.transY);
+                startClick = new Point(e.clientX-City.transX, e.clientY-City.transY);
             } else {
-                let pathNodes = City.polyPath.clickCheck(startClick.x,startClick.y,e.clientX+City.transX, e.clientY+City.transY);
+                let pathNodes = City.polyPath.clickCheck(startClick.x,startClick.y,e.clientX-City.transX, e.clientY-City.transY);
                 if (pathNodes) {
                     for (var x = 0; x < pathNodes.length; x++) {
                         path.push(pathNodes[x].centre);
