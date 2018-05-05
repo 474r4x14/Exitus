@@ -8,25 +8,23 @@ export default class Road{
         this.start = start;
         this.end = end;
         this.worldLoc = worldLoc;
-    }
+        this.poly = new PolyItem();
 
-
-    draw(context)
-    {
-        let poly = new PolyItem();
         let left = (this.start.x*Tile.SIZE)+City.transX + (this.worldLoc.x * 50 * Tile.SIZE);
         let top = (this.start.y*Tile.SIZE)+City.transY + (this.worldLoc.y * 50 * Tile.SIZE);
         let right = ((this.end.x+1)*Tile.SIZE)+City.transX + (this.worldLoc.x * 50 * Tile.SIZE);
         let bottom = ((this.end.y+1)*Tile.SIZE)+City.transY + (this.worldLoc.y * 50 * Tile.SIZE);
 
-        poly.addNode(left, top);
-        poly.addNode(right, top);
-        poly.addNode(right, bottom);
-        poly.addNode(left, bottom);
-        if (!poly.drawn) {
-            poly.process(context);
-        }
+        this.poly.addNode(left, top);
+        this.poly.addNode(right, top);
+        this.poly.addNode(right, bottom);
+        this.poly.addNode(left, bottom);
+        City.polyPath.addPoly(this.poly);
+        this.poly.process();
     }
 
-
+    draw(context)
+    {
+        this.poly.draw(context);
+    }
 }
