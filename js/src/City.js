@@ -2,6 +2,7 @@
 import Tile from './Tile';
 import Point from "./utils/Point";
 import SeededRand from "./utils/SeededRand";
+import PolyPath from "./poly/PolyPath";
 
 export default class City
 {
@@ -77,6 +78,7 @@ export default class City
 		this.checkExits();
 		this.process();
 		this.processRoads();
+		City.polyPath.process();
 		City.world[this.worldLoc.y][this.worldLoc.x] = this;
 	}
 
@@ -552,4 +554,4 @@ City.world = [];
 // World translation
 City.transX = 0;
 City.transY = 0;
-
+City.polyPath = new PolyPath();

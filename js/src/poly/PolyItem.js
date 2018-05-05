@@ -1,13 +1,13 @@
 import PolyNode from './PolyNode';
 import PolyEdge from './PolyEdge';
 import Point from '../utils/Point';
+import City from "../City";
 export default class PolyItem{
 	constructor() {
         this._nodes = [];
         this.edges = [];
         this.drawn = false;
     }
-
 
 	/**
 	 * Add a node, nodes are the room corners, edges are generated from them.
@@ -26,48 +26,39 @@ export default class PolyItem{
 	};
 
 
-
 	/**
 	 * populated the edges array and draws to the canvas
 	 */
-	process(context) {
-
+	process() {
 
 		// Add the first nade as the last to complete the polygon
 		var endNode = new PolyNode();
 		endNode.x = this._nodes[0].x;
 		endNode.y = this._nodes[0].y;
 		this._nodes.push(endNode);
-
-
-		context.strokeStyle = '#00ff00';
-		// Contexts.floorContext.strokeStyle = '#'+Math.floor(Math.random()*16777215).toString(16);
-		context.lineWidth = 2;
-		context.fillStyle = "rgba(0, 255, 0, 0.3)";
-		context.beginPath();
-
-		context.moveTo(this._nodes[0].x,this._nodes[0].y);
-
-
 		for (var i=1; i < this._nodes.length;i++) {
 			var node = new PolyEdge(this._nodes[i-1].x,this._nodes[i-1].y,this._nodes[i].x,this._nodes[i].y);
-			// TODO are these required?
-			/*
-			node.x = this._nodes[i].x;
-			node.y = this._nodes[i].y;
-			*/
 			this.edges.push(node);
-
-			context.lineTo(this._nodes[i].x,this._nodes[i].y);
-
 		}
-
-
-		context.closePath();
-		context.stroke();
-		context.fill();
-		this.drawn = true;
 	};
+
+	draw(context)
+	{
+        if (context !== undefined) {
+            context.strokeStyle = '#00ff00';
+            context.lineWidth = 2;
+            context.fillStyle = "rgba(0, 255, 0, 0.3)";
+            context.beginPath();
+            context.moveTo(this._nodes[0].x+City.transX, this._nodes[0].y+City.transY);
+            for (var i=1; i < this._nodes.length;i++) {
+				context.lineTo(this._nodes[i].x+City.transX, this._nodes[i].y+City.transY);
+            }
+            context.closePath();
+            context.stroke();
+            context.fill();
+            this.drawn = true;
+        }
+	}
 
 
 	pointInPolygon(p) // p:Point
@@ -107,5 +98,4 @@ export default class PolyItem{
 			return (p.x <= x2);
 		}
 	}
-
 };
