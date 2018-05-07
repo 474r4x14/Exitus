@@ -3,6 +3,7 @@ import Tile from './Tile';
 import Point from "./utils/Point";
 import SeededRand from "./utils/SeededRand";
 import PolyPath from "./poly/PolyPath";
+import Building from "./Building";
 
 export default class City
 {
@@ -429,7 +430,13 @@ export default class City
 			return;
 		}
 
-		this.buildings.push({'top':top,'right':right,'bottom':bottom,'left':left});
+		let doRooms = false;
+		if (this.buildings.length === 0) {
+			doRooms = true;
+		}
+
+		let building = new Building(left, top, right-left,bottom-top, this.worldLoc, doRooms);
+		this.buildings.push(building);
 
 		// Let's change to building
 		for(let y=top;y<=bottom;y++){

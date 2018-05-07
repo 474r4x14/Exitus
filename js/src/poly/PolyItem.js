@@ -42,12 +42,20 @@ export default class PolyItem{
 		}
 	};
 
-	draw(context)
+	draw(context, color = null)
 	{
         if (context !== undefined) {
-            context.strokeStyle = '#00ff00';
+        	if (color === null) {
+                context.strokeStyle = '#00ff00';
+            } else {
+                context.strokeStyle = 'rgb('+color.r+','+color.g+','+color.b+')';
+			}
             context.lineWidth = 2;
-            context.fillStyle = "rgba(0, 255, 0, 0.3)";
+            if (color === null) {
+                context.fillStyle = "rgba(0, 255, 0, 0.3)";
+            } else {
+                context.fillStyle = 'rgba('+color.r+','+color.g+','+color.b+',0.3)';
+			}
             context.beginPath();
             context.moveTo(this._nodes[0].x+City.transX, this._nodes[0].y+City.transY);
             for (var i=1; i < this._nodes.length;i++) {
