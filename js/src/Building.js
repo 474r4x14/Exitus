@@ -76,16 +76,16 @@ export default class Building{
 
             // Let's move the outer walls in a bit for walls
             if (this.rooms[i].top === this.top) {
-                top += 10;
+                top += 8;
             }
             if (this.rooms[i].bottom-1 === this.bottom) {
-                bottom -= 10;
+                bottom -= 8;
             }
             if (this.rooms[i].left === this.left) {
-                left += 10;
+                left += 8;
             }
             if (this.rooms[i].right-1 === this.right) {
-                right -= 10;
+                right -= 8;
             }
 
             poly = new PolyItem();
