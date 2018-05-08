@@ -83,6 +83,9 @@ function redraw()
             city1.tiles[y][x].draw(ctx);
         }
     }
+    for (let y = 0; y < city1.buildings.length; y++) {
+        city1.buildings[y].draw(ctx);
+    }
     for (let y = 0; y < city1.roads.length; y++) {
         city1.roads[y].draw(ctx);
     }
