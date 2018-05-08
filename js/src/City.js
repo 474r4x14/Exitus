@@ -84,23 +84,25 @@ export default class City
 	}
 
 
-	createMap()
-	{
-		// Creates a map of empty tiles based on the width / height
-		for (let i = 0; i < this.height; i++) {
-			this.tiles.push([]);
-			for (let j = 0; j < this.width; j++) {
-				let tile = new Tile(j, i, Tile.TYPE_EMPTY, this.worldLoc);
-				if (j > 0) {
-					tile.west = this.tiles[i][j-1];
-				}
-				if (i > 0) {
-					tile.north = this.tiles[i-1][j];
-				}
-				this.tiles[i].push(tile);
-			}
-		}
-	}
+    createMap()
+    {
+        // Creates a map of empty tiles based on the width / height
+        for (let i = 0; i < this.height; i++) {
+            this.tiles.push([]);
+            for (let j = 0; j < this.width; j++) {
+                let tile = new Tile(j, i, Tile.TYPE_EMPTY, this.worldLoc);
+
+                // Let's link up the neighbouring tiles
+                if (j > 0) {
+                    tile.west = this.tiles[i][j-1];
+                }
+                if (i > 0) {
+                    tile.north = this.tiles[i-1][j];
+                }
+                this.tiles[i].push(tile);
+            }
+        }
+    }
 
 	// Checks to see if exits exist and randomly generates any missing
 	checkExits()
@@ -326,25 +328,25 @@ export default class City
 		let direction;//:String;
 		let length;//:int;
 
-		if (xLoc !== xPos) {
-			tmpDimention = xPos;
-			if(xLoc < xPos){
-				direction = 'right';
-				length = xPos-xLoc;
-			}else{
-				direction = 'left';
-				length = xLoc-xPos;
-			}
-		}else{
-			tmpDimention = yPos;
-			if(yLoc < yPos){
-				direction = 'down';
-				length = yPos-yLoc;
-			}else{
-				direction = 'up';
-				length = yLoc-yPos;
-			}
-		}
+        if (xLoc !== xPos) {
+            tmpDimention = xPos;
+            if(xLoc < xPos){
+                direction = City.DIRECTION_RIGHT;
+                length = xPos-xLoc;
+            }else{
+                direction = City.DIRECTION_LEFT;
+                length = xLoc-xPos;
+            }
+        }else{
+            tmpDimention = yPos;
+            if(yLoc < yPos){
+                direction = City.DIRECTION_DOWN;
+                length = yPos-yLoc;
+            }else{
+                direction = City.DIRECTION_UP;
+                length = yLoc-yPos;
+            }
+        }
 
 		xPos = xLoc;
 		yPos = yLoc;
@@ -430,12 +432,7 @@ export default class City
 			return;
 		}
 
-		let doRooms = false;
-		if (this.buildings.length === 0) {
-			doRooms = true;
-		}
-
-		let building = new Building(left, top, right-left,bottom-top, this.worldLoc, doRooms);
+		let building = new Building(left, top, right-left,bottom-top, this.worldLoc);
 		this.buildings.push(building);
 
 		// Let's change to building
@@ -506,28 +503,28 @@ export default class City
 		let xPos = xLoc;//int
 		let yPos = yLoc;//int
 
-		while (length > 0) {
-			if(!this.isTileEmpty(xPos,yPos)){
-				return false;
-			}
-			switch (direction) {
-				case 'left':
-					xPos--;
-					break;
-				case 'right':
-					xPos++;
-					break;
-				case 'up':
-					yPos--;
-					break;
-				case 'down':
-					yPos++;
-					break;
-			}
-			length--;
-		}
-		return true;
-	}
+        while (length > 0) {
+            if(!this.isTileEmpty(xPos,yPos)){
+                return false;
+            }
+            switch (direction) {
+                case City.DIRECTION_LEFT:
+                    xPos--;
+                    break;
+                case City.DIRECTION_RIGHT:
+                    xPos++;
+                    break;
+                case City.DIRECTION_UP:
+                    yPos--;
+                    break;
+                case City.DIRECTION_DOWN:
+                    yPos++;
+                    break;
+            }
+            length--;
+        }
+        return true;
+    }
 
 	cleanUp()
 	{
@@ -554,6 +551,11 @@ City.SIDE_NORTH = 1;
 City.SIDE_SOUTH = 2;
 City.SIDE_EAST = 3;
 City.SIDE_WEST = 4;
+
+City.DIRECTION_UP = 1;
+City.DIRECTION_DOWN = 2;
+City.DIRECTION_LEFT = 3;
+City.DIRECTION_RIGHT = 4;
 
 City.worldLoc = new Point();
 /** @type {Array<Array<City>>} */
