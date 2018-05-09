@@ -9,6 +9,12 @@ export default class Room
         this.height = height;
         this.right = x+width;
         this.bottom = y+height;
+        this.doors = {
+            north: false,
+            south: false,
+            east: false,
+            west: false
+        };
     }
 
     hasBlock(point)
