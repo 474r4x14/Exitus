@@ -26,6 +26,14 @@ export default class Tile
         }
         this.roadId = 0;
         this.roadProcessed = false;
+
+        // Does this section of road have access to a building?
+        this.buildingAccess = {
+            north:false,
+            south:false,
+            east:false,
+            west:false
+        };
     }
 
     // These are used to know what the neighbouring tiles are
@@ -85,13 +93,33 @@ export default class Tile
 
 
     // Follows a straight section of road
-    followRoad(fromTile=null)
+    followRoad(fromTile=null, doorData = null)
     {
-        let returnPoint = new Point(this.x,this.y);
+
+
+        let returnData = {x:this.x, y:this.y,doors:[]};
+        if (doorData !== null) {
+            returnData.doors = doorData;
+        }
         if (this.roadProcessed) {
-            return returnPoint;
+            return returnData;
         }
         this.roadProcessed = true;
+
+        if (this.buildingAccess.north) {
+            returnData.doors.push({x: this.x, y: this.y, side: City.SIDE_NORTH});
+            // console.log('access north');
+        }
+        if (this.buildingAccess.south) {
+            // console.log('access south');
+            returnData.doors.push({x: this.x, y: this.y, side: City.SIDE_SOUTH});
+        }
+        if (this.buildingAccess.east) {
+            returnData.doors.push({x: this.x, y: this.y, side: City.SIDE_EAST});
+        }
+        if (this.buildingAccess.west) {
+            returnData.doors.push({x: this.x, y: this.y, side: City.SIDE_WEST});
+        }
         if (
             (
                 fromTile === null ||
@@ -110,7 +138,7 @@ export default class Tile
             )
         ) {
             // moving south
-            return this.neighbours.south.followRoad(this);
+            return this.neighbours.south.followRoad(this, returnData.doors);
         } else if (
             (
                 fromTile === null ||
@@ -129,7 +157,7 @@ export default class Tile
             )
         ) {
             // moving north
-            return this.neighbours.north.followRoad(this);
+            return this.neighbours.north.followRoad(this, returnData.doors);
         } else if (
             (
                 fromTile === null ||
@@ -148,7 +176,7 @@ export default class Tile
             )
         ) {
             // moving east
-            return this.neighbours.east.followRoad(this);
+            return this.neighbours.east.followRoad(this, returnData.doors);
         } else if (
             (
                 fromTile === null ||
@@ -167,9 +195,9 @@ export default class Tile
             )
         ) {
             // moving west
-            return this.neighbours.west.followRoad(this);
+            return this.neighbours.west.followRoad(this, returnData.doors);
         }
-        return returnPoint;
+        return returnData;
     }
 };
 Tile.TYPE_EMPTY = 0;

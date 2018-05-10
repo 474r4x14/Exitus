@@ -204,6 +204,15 @@ export default class City
 			for (let x = 0; x < this.tiles[y].length; x++) {
 				if (this.tiles[y][x].type === Tile.TYPE_ROAD) {
 					var roadLoc = new Point(x, y);
+
+                    // Any building entrances here?
+					let entrances = {
+                    	north: this.tiles[y][x].buildingAccess.south,
+                    	south: this.tiles[y][x].buildingAccess.north,
+                    	east: this.tiles[y][x].buildingAccess.west,
+                    	west: this.tiles[y][x].buildingAccess.east
+					};
+
                     // It's a road corner
                     if (
                         this.tiles[y][x].roadId === 3 ||
@@ -217,18 +226,26 @@ export default class City
                     ) {
                         // Just create a single square poly
                         this.tiles[y][x].roadProcessed = true;
-                        var road = new Road(roadLoc, roadLoc, this.worldLoc);
+                        var road = new Road(roadLoc, roadLoc, entrances, this.worldLoc);
                         this.roads.push(road);
                     } else if (this.tiles[y][x].roadProcessed === false) {
                         // It's a straight piece of road, let's find siblings!
                         let destPoint = this.tiles[y][x].followRoad();
-                        var road = new Road(roadLoc, destPoint, this.worldLoc);
+                        // TODO need to get the entrances of middle road pieces (they're in the destPoint object now)
+						// console.log('entrances', roadLoc,entrances, destPoint.doors);
+                        var road = new Road(roadLoc, new Point(destPoint.x,destPoint.y), destPoint.doors, this.worldLoc);
                         this.roads.push(road);
                     }
+                    /*
+                    this.tiles[y][x].roadProcessed = true;
+                    var road = new Road(roadLoc, roadLoc, entrances, this.worldLoc);
+                    this.roads.push(road);
+					*/
                 }
 			}
 		}
 	}
+
 
 	// Finds empty tiles & populates with a building
 	scanSide()
@@ -435,10 +452,36 @@ export default class City
 		let building = new Building(left, top, right-left,bottom-top, this.worldLoc);
 		this.buildings.push(building);
 
+        // Create joining polys for doors
+        for (let i=0; i < building.rooms.length; i++) {
+        	let room = building.rooms[i];
+        	// console.log(building.rooms[i].left+' === '+left+' && '+building.rooms[i].doors.west+' === true');
+            if (building.rooms[i].left === left && building.rooms[i].doors.west === true && (this.tiles[room.top][room.left-1]) !== undefined) {
+                this.tiles[room.top][room.left-1].buildingAccess.east = true;
+                // console.log('setting east building access');
+            }
+
+
+            if (building.rooms[i].right === right+1 && building.rooms[i].doors.east === true && (this.tiles[room.top][room.right+1]) !== undefined) {
+                this.tiles[room.top][room.right].buildingAccess.west = true;
+            }
+            if (building.rooms[i].top === top && building.rooms[i].doors.north === true && (this.tiles[room.top-1]) !== undefined) {
+                this.tiles[room.top-1][room.left].buildingAccess.south = true;
+                // console.log('setting south building access');
+            }
+            // console.log('north check',building.rooms[i].bottom+' === '+(bottom+1)+' && '+building.rooms[i].doors.south+' === true && '+(this.tiles[room.bottom+1])+' !== undefined');
+            if (building.rooms[i].bottom === bottom+1 && building.rooms[i].doors.south === true && (this.tiles[room.bottom+1]) !== undefined) {
+                this.tiles[room.bottom][room.left].buildingAccess.north = true;
+                // console.log('setting north building access');
+            }
+        }
+
 		// Let's change to building
 		for(let y=top;y<=bottom;y++){
 			for(let x=left;x<=right;x++){
 				this.tiles[y][x].type = Tile.TYPE_BUILDING;
+
+
 
 				// make the roads
 				//LEFT
