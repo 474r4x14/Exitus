@@ -1,6 +1,9 @@
-﻿import Tile from './Tile';
+﻿import Road from './Road';
+import Tile from './Tile';
 import Point from "./utils/Point";
 import SeededRand from "./utils/SeededRand";
+import PolyPath from "./poly/PolyPath";
+import Building from "./Building";
 
 export default class City
 {
@@ -42,6 +45,10 @@ export default class City
 		// Array containing the buildings details
 		this.buildings = [];
 
+		// Array containing the road details
+        /** @type {Array<Road>} */
+		this.roads = [];
+
 		this.worldLoc = new Point(x,y);
 		this.rand = new SeededRand(seed);
 		// The exit points have their own random seed as they might not be set so this prevents inconsistencies
@@ -72,27 +79,30 @@ export default class City
 		this.checkExits();
 		this.process();
 		this.processRoads();
+		City.polyPath.process();
 		City.world[this.worldLoc.y][this.worldLoc.x] = this;
 	}
 
 
-	createMap()
-	{
-		// Creates a map of empty tiles based on the width / height
-		for (let i = 0; i < this.height; i++) {
-			this.tiles.push([]);
-			for (let j = 0; j < this.width; j++) {
-				let tile = new Tile(j, i, Tile.TYPE_EMPTY, this.worldLoc);
-				if (j > 0) {
-					tile.west = this.tiles[i][j-1];
-				}
-				if (i > 0) {
-					tile.north = this.tiles[i-1][j];
-				}
-				this.tiles[i].push(tile);
-			}
-		}
-	}
+    createMap()
+    {
+        // Creates a map of empty tiles based on the width / height
+        for (let i = 0; i < this.height; i++) {
+            this.tiles.push([]);
+            for (let j = 0; j < this.width; j++) {
+                let tile = new Tile(j, i, Tile.TYPE_EMPTY, this.worldLoc);
+
+                // Let's link up the neighbouring tiles
+                if (j > 0) {
+                    tile.west = this.tiles[i][j-1];
+                }
+                if (i > 0) {
+                    tile.north = this.tiles[i-1][j];
+                }
+                this.tiles[i].push(tile);
+            }
+        }
+    }
 
 	// Checks to see if exits exist and randomly generates any missing
 	checkExits()
@@ -190,7 +200,52 @@ export default class City
                 }
             }
         }
+		for (let y =0; y < this.tiles.length; y++) {
+			for (let x = 0; x < this.tiles[y].length; x++) {
+				if (this.tiles[y][x].type === Tile.TYPE_ROAD) {
+					var roadLoc = new Point(x, y);
+
+                    // Any building entrances here?
+					let entrances = {
+                    	north: this.tiles[y][x].buildingAccess.south,
+                    	south: this.tiles[y][x].buildingAccess.north,
+                    	east: this.tiles[y][x].buildingAccess.west,
+                    	west: this.tiles[y][x].buildingAccess.east
+					};
+
+                    // It's a road corner
+                    if (
+                        this.tiles[y][x].roadId === 3 ||
+                        this.tiles[y][x].roadId === 6 ||
+                        this.tiles[y][x].roadId === 7 ||
+                        this.tiles[y][x].roadId === 9 ||
+                        this.tiles[y][x].roadId === 11 ||
+                        this.tiles[y][x].roadId === 12 ||
+                        this.tiles[y][x].roadId === 13 ||
+                        this.tiles[y][x].roadId === 14
+                    ) {
+                        // Just create a single square poly
+                        this.tiles[y][x].roadProcessed = true;
+                        var road = new Road(roadLoc, roadLoc, entrances, this.worldLoc);
+                        this.roads.push(road);
+                    } else if (this.tiles[y][x].roadProcessed === false) {
+                        // It's a straight piece of road, let's find siblings!
+                        let destPoint = this.tiles[y][x].followRoad();
+                        // TODO need to get the entrances of middle road pieces (they're in the destPoint object now)
+						// console.log('entrances', roadLoc,entrances, destPoint.doors);
+                        var road = new Road(roadLoc, new Point(destPoint.x,destPoint.y), destPoint.doors, this.worldLoc);
+                        this.roads.push(road);
+                    }
+                    /*
+                    this.tiles[y][x].roadProcessed = true;
+                    var road = new Road(roadLoc, roadLoc, entrances, this.worldLoc);
+                    this.roads.push(road);
+					*/
+                }
+			}
+		}
 	}
+
 
 	// Finds empty tiles & populates with a building
 	scanSide()
@@ -290,25 +345,25 @@ export default class City
 		let direction;//:String;
 		let length;//:int;
 
-		if (xLoc !== xPos) {
-			tmpDimention = xPos;
-			if(xLoc < xPos){
-				direction = 'right';
-				length = xPos-xLoc;
-			}else{
-				direction = 'left';
-				length = xLoc-xPos;
-			}
-		}else{
-			tmpDimention = yPos;
-			if(yLoc < yPos){
-				direction = 'down';
-				length = yPos-yLoc;
-			}else{
-				direction = 'up';
-				length = yLoc-yPos;
-			}
-		}
+        if (xLoc !== xPos) {
+            tmpDimention = xPos;
+            if(xLoc < xPos){
+                direction = City.DIRECTION_RIGHT;
+                length = xPos-xLoc;
+            }else{
+                direction = City.DIRECTION_LEFT;
+                length = xLoc-xPos;
+            }
+        }else{
+            tmpDimention = yPos;
+            if(yLoc < yPos){
+                direction = City.DIRECTION_DOWN;
+                length = yPos-yLoc;
+            }else{
+                direction = City.DIRECTION_UP;
+                length = yLoc-yPos;
+            }
+        }
 
 		xPos = xLoc;
 		yPos = yLoc;
@@ -394,12 +449,39 @@ export default class City
 			return;
 		}
 
-		this.buildings.push({'top':top,'right':right,'bottom':bottom,'left':left});
+		let building = new Building(left, top, right-left,bottom-top, this.worldLoc);
+		this.buildings.push(building);
+
+        // Create joining polys for doors
+        for (let i=0; i < building.rooms.length; i++) {
+        	let room = building.rooms[i];
+        	// console.log(building.rooms[i].left+' === '+left+' && '+building.rooms[i].doors.west+' === true');
+            if (building.rooms[i].left === left && building.rooms[i].doors.west === true && (this.tiles[room.top][room.left-1]) !== undefined) {
+                this.tiles[room.top][room.left-1].buildingAccess.east = true;
+                // console.log('setting east building access');
+            }
+
+
+            if (building.rooms[i].right === right+1 && building.rooms[i].doors.east === true && (this.tiles[room.top][room.right+1]) !== undefined) {
+                this.tiles[room.top][room.right].buildingAccess.west = true;
+            }
+            if (building.rooms[i].top === top && building.rooms[i].doors.north === true && (this.tiles[room.top-1]) !== undefined) {
+                this.tiles[room.top-1][room.left].buildingAccess.south = true;
+                // console.log('setting south building access');
+            }
+            // console.log('north check',building.rooms[i].bottom+' === '+(bottom+1)+' && '+building.rooms[i].doors.south+' === true && '+(this.tiles[room.bottom+1])+' !== undefined');
+            if (building.rooms[i].bottom === bottom+1 && building.rooms[i].doors.south === true && (this.tiles[room.bottom+1]) !== undefined) {
+                this.tiles[room.bottom][room.left].buildingAccess.north = true;
+                // console.log('setting north building access');
+            }
+        }
 
 		// Let's change to building
 		for(let y=top;y<=bottom;y++){
 			for(let x=left;x<=right;x++){
 				this.tiles[y][x].type = Tile.TYPE_BUILDING;
+
+
 
 				// make the roads
 				//LEFT
@@ -464,28 +546,28 @@ export default class City
 		let xPos = xLoc;//int
 		let yPos = yLoc;//int
 
-		while (length > 0) {
-			if(!this.isTileEmpty(xPos,yPos)){
-				return false;
-			}
-			switch (direction) {
-				case 'left':
-					xPos--;
-					break;
-				case 'right':
-					xPos++;
-					break;
-				case 'up':
-					yPos--;
-					break;
-				case 'down':
-					yPos++;
-					break;
-			}
-			length--;
-		}
-		return true;
-	}
+        while (length > 0) {
+            if(!this.isTileEmpty(xPos,yPos)){
+                return false;
+            }
+            switch (direction) {
+                case City.DIRECTION_LEFT:
+                    xPos--;
+                    break;
+                case City.DIRECTION_RIGHT:
+                    xPos++;
+                    break;
+                case City.DIRECTION_UP:
+                    yPos--;
+                    break;
+                case City.DIRECTION_DOWN:
+                    yPos++;
+                    break;
+            }
+            length--;
+        }
+        return true;
+    }
 
 	cleanUp()
 	{
@@ -513,10 +595,15 @@ City.SIDE_SOUTH = 2;
 City.SIDE_EAST = 3;
 City.SIDE_WEST = 4;
 
+City.DIRECTION_UP = 1;
+City.DIRECTION_DOWN = 2;
+City.DIRECTION_LEFT = 3;
+City.DIRECTION_RIGHT = 4;
+
 City.worldLoc = new Point();
 /** @type {Array<Array<City>>} */
 City.world = [];
 // World translation
 City.transX = 0;
 City.transY = 0;
-
+City.polyPath = new PolyPath();
