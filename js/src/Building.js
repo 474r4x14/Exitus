@@ -117,6 +117,7 @@ export default class Building{
                 City.polyPath.addPoly(doorPoly);
                 doorPoly.process();
                 this.roomPolys.push(doorPoly);
+                poly.addNode(leftPad, topPad);
                 poly.addNode(leftPad+8, topPad);
             }
 
@@ -132,6 +133,7 @@ export default class Building{
                 City.polyPath.addPoly(doorPoly);
                 doorPoly.process();
                 this.roomPolys.push(doorPoly);
+                poly.addNode(rightPad, topPad);
                 poly.addNode(rightPad, topPad+8);
             }
 
@@ -147,6 +149,7 @@ export default class Building{
                 doorPoly.process();
                 this.roomPolys.push(doorPoly);
                 poly.addNode(leftPad+8, bottomPad);
+                poly.addNode(leftPad, bottomPad);
             }
 
             poly.addNode(left, bottom);
@@ -160,6 +163,7 @@ export default class Building{
                 doorPoly.process();
                 this.roomPolys.push(doorPoly);
                 poly.addNode(leftPad, topPad+8);
+                poly.addNode(leftPad, topPad);
             }
             City.polyPath.addPoly(poly);
             poly.process();
