@@ -67,7 +67,7 @@ export default class Building{
             }
         }
         this.poly._nodes = [];
-        let poly;
+        let doors = [];
         for (let i = 0; i < this.rooms.length; i++) {
             let top = (this.rooms[i].top*Tile.SIZE)+City.transY;
             let left = (this.rooms[i].left*Tile.SIZE)+City.transX;
@@ -79,8 +79,9 @@ export default class Building{
             let rightPad = right-8;
 
             // Let's move the outer walls in a bit for walls
+            top += 8;
+            left += 8;
             if (this.rooms[i].top === this.top) {
-                top += 8;
                 if (Math.floor(Math.random()*5) === 0) {
                     this.rooms[i].doors.north = true;
                 }
@@ -92,7 +93,6 @@ export default class Building{
                 }
             }
             if (this.rooms[i].left === this.left) {
-                left += 8;
                 if (Math.floor(Math.random()*5) === 0) {
                     this.rooms[i].doors.west = true;
                 }
@@ -104,10 +104,18 @@ export default class Building{
                     this.rooms[i].doors.east = true;
                 }
             }
+
+            // Create internal doors
+            if (this.rooms[i].bottom-1 !== this.bottom) {
+                this.rooms[i].doors.north = true;
+            }
+            if (this.rooms[i].right-1 !== this.right) {
+                this.rooms[i].doors.west = true;
+            }
+
             let doorPoly;
 
-            poly = new PolyItem();
-            poly.addNode(left, top);
+            // Let's add the doors
             if (this.rooms[i].doors.north) {
                 doorPoly = new PolyItem();
                 doorPoly.addNode(leftPad, topPad-8);
@@ -117,12 +125,8 @@ export default class Building{
                 City.polyPath.addPoly(doorPoly);
                 doorPoly.process();
                 this.roomPolys.push(doorPoly);
-                poly.addNode(leftPad, topPad);
-                poly.addNode(leftPad+8, topPad);
+                doors.push(doorPoly);
             }
-
-
-            poly.addNode(right, top);
 
             if (this.rooms[i].doors.east) {
                 doorPoly = new PolyItem();
@@ -133,12 +137,9 @@ export default class Building{
                 City.polyPath.addPoly(doorPoly);
                 doorPoly.process();
                 this.roomPolys.push(doorPoly);
-                poly.addNode(rightPad, topPad);
-                poly.addNode(rightPad, topPad+8);
+                doors.push(doorPoly);
             }
 
-
-            poly.addNode(right, bottom);
             if (this.rooms[i].doors.south) {
                 doorPoly = new PolyItem();
                 doorPoly.addNode(leftPad, bottomPad);
@@ -148,11 +149,9 @@ export default class Building{
                 City.polyPath.addPoly(doorPoly);
                 doorPoly.process();
                 this.roomPolys.push(doorPoly);
-                poly.addNode(leftPad+8, bottomPad);
-                poly.addNode(leftPad, bottomPad);
+                doors.push(doorPoly);
             }
 
-            poly.addNode(left, bottom);
             if (this.rooms[i].doors.west) {
                 doorPoly = new PolyItem();
                 doorPoly.addNode(leftPad, topPad);
@@ -162,9 +161,121 @@ export default class Building{
                 City.polyPath.addPoly(doorPoly);
                 doorPoly.process();
                 this.roomPolys.push(doorPoly);
-                poly.addNode(leftPad, topPad+8);
-                poly.addNode(leftPad, topPad);
+                doors.push(doorPoly);
             }
+        }
+
+        // loop through again to get the door nodes
+        let poly;
+        for (let i = 0; i < this.rooms.length; i++) {
+
+            let top = (this.rooms[i].top*Tile.SIZE)+City.transY;
+            let left = (this.rooms[i].left*Tile.SIZE)+City.transX;
+            let bottom = (this.rooms[i].bottom*Tile.SIZE)+City.transY;
+            let right = (this.rooms[i].right*Tile.SIZE)+City.transX;
+
+            // Let's move the outer walls in a bit for walls
+            top += 8;
+            left += 8;
+            if (this.rooms[i].bottom-1 === this.bottom) {
+                bottom -= 8;
+            }
+            if (this.rooms[i].right-1 === this.right) {
+                right -= 8;
+            }
+
+            poly = new PolyItem();
+            let e;
+            let f;
+            // Top Left corner
+            poly.addNode(left, top);
+
+            // Check the internal doors between top left & top right
+            let doorNodes = [];
+            for (e = 0; e < doors.length; e++) {
+                for (f = 0; f < doors[e]._nodes.length; f++) {
+                    let node = doors[e]._nodes[f];
+                    if (node.y === top && node.x > left && node.x < right) {
+                        doorNodes.push(node);
+
+                    }
+                }
+            }
+            if (doorNodes.length > 0) {
+                doorNodes.sort(function (a, b) {
+                    return a.x - b.x;
+                });
+                for (e = 0; e < doorNodes.length; e++) {
+                    poly.addNode(doorNodes[e].x, doorNodes[e].y);
+                }
+            }
+
+            // Top Right corner
+            poly.addNode(right, top);
+
+            // Check the internal doors between top right & bottom right
+            doorNodes = [];
+            for (e = 0; e < doors.length; e++) {
+                for (f = 0; f < doors[e]._nodes.length; f++) {
+                    let node = doors[e]._nodes[f];
+                    if (node.x === right && node.y > top && node.y < bottom) {
+                        doorNodes.push(node);
+                    }
+                }
+            }
+            if (doorNodes.length > 0) {
+                doorNodes.sort(function (a, b) {
+                    return a.y - b.y;
+                });
+                for (e = 0; e < doorNodes.length; e++) {
+                    poly.addNode(doorNodes[e].x, doorNodes[e].y);
+                }
+            }
+
+            // Bottom Right corner
+            poly.addNode(right, bottom);
+
+            // Check the internal doors between bottom right and bottom left
+            doorNodes = [];
+            for (e = 0; e < doors.length; e++) {
+                for (f = 0; f < doors[e]._nodes.length; f++) {
+                    let node = doors[e]._nodes[f];
+                    if (node.y === bottom && node.x > left && node.x < right) {
+                        doorNodes.push(node);
+                    }
+                }
+            }
+            if (doorNodes.length > 0) {
+                doorNodes.sort(function (b, a) {
+                    return a.x - b.x;
+                });
+                for (e = 0; e < doorNodes.length; e++) {
+                    poly.addNode(doorNodes[e].x, doorNodes[e].y);
+                }
+            }
+
+            // Bottom Left corner
+            poly.addNode(left, bottom);
+
+            // Check the internal doors between bottom left and top left
+            doorNodes = [];
+            for (e = 0; e < doors.length; e++) {
+                for (f = 0; f < doors[e]._nodes.length; f++) {
+                    let node = doors[e]._nodes[f];
+                    if (node.x === left && node.y > top && node.y < bottom) {
+                        doorNodes.push(node);
+                    }
+                }
+            }
+            if (doorNodes.length > 0) {
+                doorNodes.sort(function (b, a) {
+                    return a.y - b.y;
+                });
+                for (e = 0; e < doorNodes.length; e++) {
+                    poly.addNode(doorNodes[e].x, doorNodes[e].y);
+                }
+            }
+
             City.polyPath.addPoly(poly);
             poly.process();
             this.roomPolys.push(poly);
