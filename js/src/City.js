@@ -144,7 +144,7 @@ export default class City
 		let tmpLoc = 0;
 		while (tmpLoc < length) {
 			tmpLoc += Math.floor( this.exitRand.random()*this.buildingMin+(this.buildingMax-this.buildingMin));
-			if (tmpLoc < length-3) {
+			if (tmpLoc < length-1) {
 				arrReturn.push(tmpLoc);
 			}
 		}
