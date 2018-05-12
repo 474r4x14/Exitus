@@ -607,3 +607,6 @@ City.world = [];
 City.transX = 0;
 City.transY = 0;
 City.polyPath = new PolyPath();
+
+// Neighbouring city blocks, used for transitioning through the world
+City.blocks = {center:null,east:null,west:null, north:null, south:null, northEast:null, northWest:null, southEast:null, southWest:null};
