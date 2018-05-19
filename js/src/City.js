@@ -52,7 +52,7 @@ export default class City
 		this.worldLoc = new Point(x,y);
 		this.rand = new SeededRand(seed);
 		// The exit points have their own random seed as they might not be set so this prevents inconsistencies
-		this.exitRand = new SeededRand(this.rand.random());
+		this.exitRand = new SeededRand(Math.floor(this.rand.random()* 10000));
 	}
 
 	generate()
