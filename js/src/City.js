@@ -13,14 +13,6 @@ export default class City
 		/** @type {Array<Array<Tile>>} */
 		this.tiles = [];
 
-		// Visual display of the map
-		//this.map:Sprite = new Sprite;
-
-		// Width of the map to create
-		this.width = 50;
-		// Height of the map
-		this.height = 50;
-
 		// minimum length of a building
 		this.buildingMin = 5;
 		// maximum length of a building
@@ -87,9 +79,9 @@ export default class City
     createMap()
     {
         // Creates a map of empty tiles based on the width / height
-        for (let i = 0; i < this.height; i++) {
+        for (let i = 0; i < City.height; i++) {
             this.tiles.push([]);
-            for (let j = 0; j < this.width; j++) {
+            for (let j = 0; j < City.width; j++) {
                 let tile = new Tile(j, i, Tile.TYPE_EMPTY, this.worldLoc);
 
                 // Let's link up the neighbouring tiles
@@ -109,16 +101,16 @@ export default class City
 	{
 		// Randomly generate the exits if they weren't predefined
 		if (this.exitPoints.north.length === 0) {
-			this.exitPoints.north = this.generateExits(this.width);
+			this.exitPoints.north = this.generateExits(City.width);
 		}
 		if (this.exitPoints.south.length === 0) {
-			this.exitPoints.south = this.generateExits(this.width);
+			this.exitPoints.south = this.generateExits(City.width);
 		}
 		if (this.exitPoints.east.length === 0) {
-			this.exitPoints.east = this.generateExits(this.height);
+			this.exitPoints.east = this.generateExits(City.height);
 		}
 		if (this.exitPoints.west.length === 0) {
-			this.exitPoints.west = this.generateExits(this.height);
+			this.exitPoints.west = this.generateExits(City.height);
 		}
 
 		// Draw the exits on the map
@@ -127,10 +119,10 @@ export default class City
 			this.tiles[0][this.exitPoints.north[i]].type = Tile.TYPE_ROAD;
 		}
 		for(i=0;i<this.exitPoints.south.length;i++) {
-			this.tiles[this.height-1][this.exitPoints.south[i]].type = Tile.TYPE_ROAD;
+			this.tiles[City.height-1][this.exitPoints.south[i]].type = Tile.TYPE_ROAD;
 		}
 		for(i=0;i<this.exitPoints.east.length;i++) {
-			this.tiles[this.exitPoints.east[i]][this.width-1].type = Tile.TYPE_ROAD;
+			this.tiles[this.exitPoints.east[i]][City.width-1].type = Tile.TYPE_ROAD;
 		}
 		for(i=0;i<this.exitPoints.west.length;i++) {
 			this.tiles[this.exitPoints.west[i]][0].type = Tile.TYPE_ROAD;
@@ -179,8 +171,8 @@ export default class City
 			// If we've covered all four sides, let's move in a level
 			if (
 				count === 0 &&
-				this.activeLevel < (this.height/2)-2 &&
-				this.activeLevel < (this.width/2)-2
+				this.activeLevel < (City.height/2)-2 &&
+				this.activeLevel < (City.width/2)-2
 			) {
 				this.activeLevel++;
 				count = 4;
@@ -254,7 +246,7 @@ export default class City
 		let yLoc;
 		switch (this.activeSide) {
 			case City.SIDE_NORTH:
-				for (xLoc=0;xLoc<this.width;xLoc++) {
+				for (xLoc=0;xLoc<City.width;xLoc++) {
 					if (this.tiles[this.activeLevel][xLoc].type === Tile.TYPE_EMPTY ) {
 						this.createBuilding(xLoc,this.activeLevel);
 					}
@@ -262,23 +254,23 @@ export default class City
 				break;
 
 			case City.SIDE_EAST:
-				for (yLoc=0;yLoc<this.height;yLoc++) {
-					if (this.tiles[yLoc][this.width-1-this.activeLevel].type === Tile.TYPE_EMPTY ) {
-						this.createBuilding(this.width-1-this.activeLevel,yLoc);
+				for (yLoc=0;yLoc<City.height;yLoc++) {
+					if (this.tiles[yLoc][City.width-1-this.activeLevel].type === Tile.TYPE_EMPTY ) {
+						this.createBuilding(City.width-1-this.activeLevel,yLoc);
 					}
 				}
 				break;
 
 			case City.SIDE_SOUTH:
-				for (xLoc=this.width-1;xLoc>=0;xLoc--) {
-					if (this.tiles[this.height-1-this.activeLevel][xLoc].type === Tile.TYPE_EMPTY ) {
-						this.createBuilding(xLoc,this.height-1-this.activeLevel);
+				for (xLoc=City.width-1;xLoc>=0;xLoc--) {
+					if (this.tiles[City.height-1-this.activeLevel][xLoc].type === Tile.TYPE_EMPTY ) {
+						this.createBuilding(xLoc,City.height-1-this.activeLevel);
 					}
 				}
 				break;
 
 			case City.SIDE_WEST:
-				for (yLoc=(this.height-1);yLoc>=0;yLoc--) {
+				for (yLoc=(City.height-1);yLoc>=0;yLoc--) {
 					if (this.tiles[yLoc][this.activeLevel].type === Tile.TYPE_EMPTY ) {
 						this.createBuilding(this.activeLevel,yLoc);
 					}
@@ -297,9 +289,9 @@ export default class City
 		let buildingMax = this.buildingMax;
 
 		if (
-            (this.activeSide === City.SIDE_EAST && xLoc === this.width-1) ||
+            (this.activeSide === City.SIDE_EAST && xLoc === City.width-1) ||
             (this.activeSide === City.SIDE_WEST && xLoc === 0) ||
-            (this.activeSide === City.SIDE_SOUTH && yLoc === this.height-1) ||
+            (this.activeSide === City.SIDE_SOUTH && yLoc === City.height-1) ||
             (this.activeSide === City.SIDE_NORTH && yLoc === 0)
         ) {
             buildingMin /=2;
@@ -610,3 +602,6 @@ City.polyPath = new PolyPath();
 
 // Neighbouring city blocks, used for transitioning through the world
 City.blocks = {center:null,east:null,west:null, north:null, south:null, northEast:null, northWest:null, southEast:null, southWest:null};
+
+City.width = 16;
+City.height = 16;

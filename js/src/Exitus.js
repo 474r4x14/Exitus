@@ -23,8 +23,8 @@ window.onload = function(e) {
     canvas.width = document.body.clientWidth; //document.width is obsolete
     canvas.height = document.body.clientHeight; //document.height is obsolete
 
-    center.x = (document.body.clientWidth/2) - ((Tile.SIZE*50)/2);
-    center.y = (document.body.clientHeight/2) - ((Tile.SIZE*50)/2);
+    center.x = (document.body.clientWidth/2) - ((Tile.SIZE*City.width)/2);
+    center.y = (document.body.clientHeight/2) - ((Tile.SIZE*City.height)/2);
 
     City.transX = center.x;
     City.transY = center.y;
@@ -77,10 +77,11 @@ window.onload = function(e) {
         }
         // The world location, used to move to a new block
         let worldLoc = new Point();
-        worldLoc.x = Math.floor((-City.transX+center.x+((Tile.SIZE*50)/2)) / (Tile.SIZE*50));
-        worldLoc.y = Math.floor((-City.transY+center.y+((Tile.SIZE*50)/2)) / (Tile.SIZE*50));
+        worldLoc.x = Math.floor((-City.transX+center.x+((Tile.SIZE*City.width)/2)) / (Tile.SIZE*City.width));
+        worldLoc.y = Math.floor((-City.transY+center.y+((Tile.SIZE*City.height)/2)) / (Tile.SIZE*City.height));
         // Pixel checking to know when to load in a new city block
-        let worldPositionCheck = new Point(((City.transX-center.x) % (Tile.SIZE*50)),((City.transY-center.y) % (Tile.SIZE*50)));
+        let worldPositionCheck = new Point(((City.transX-center.x) % (Tile.SIZE*City.width)),((City.transY-center.y) % (Tile.SIZE*City.height)));
+
 
         // Load world East
         if (

@@ -10,10 +10,10 @@ export default class Road{
         this.worldLoc = worldLoc;
         this.poly = new PolyItem();
 
-        let left = (this.start.x*Tile.SIZE)+City.transX + (this.worldLoc.x * 50 * Tile.SIZE);
-        let top = (this.start.y*Tile.SIZE)+City.transY + (this.worldLoc.y * 50 * Tile.SIZE);
-        let right = ((this.end.x+1)*Tile.SIZE)+City.transX + (this.worldLoc.x * 50 * Tile.SIZE);
-        let bottom = ((this.end.y+1)*Tile.SIZE)+City.transY + (this.worldLoc.y * 50 * Tile.SIZE);
+        let left = (this.start.x*Tile.SIZE) + (this.worldLoc.x * City.width * Tile.SIZE);
+        let top = (this.start.y*Tile.SIZE) + (this.worldLoc.y * City.height * Tile.SIZE);
+        let right = ((this.end.x+1)*Tile.SIZE) + (this.worldLoc.x * City.width * Tile.SIZE);
+        let bottom = ((this.end.y+1)*Tile.SIZE) + (this.worldLoc.y * City.height * Tile.SIZE);
 
 
         // let's sort the entrances into the correct order
