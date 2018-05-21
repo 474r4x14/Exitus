@@ -20,11 +20,11 @@ export default class Building{
         this.roomPolys = [];
 
         let topLeft = new Point();
-        topLeft.x = (this.left*Tile.SIZE)+City.transX + (this.worldLoc.x * 50 * Tile.SIZE);
-        topLeft.y = (this.top*Tile.SIZE)+City.transY + (this.worldLoc.y * 50 * Tile.SIZE);
+        topLeft.x = (this.left*Tile.SIZE) + (this.worldLoc.x * City.width * Tile.SIZE);
+        topLeft.y = (this.top*Tile.SIZE) + (this.worldLoc.y * City.height * Tile.SIZE);
         let bottomRight = new Point();
-        bottomRight.x = ((this.right+this.width+1)*Tile.SIZE)+City.transX + (this.worldLoc.x * 50 * Tile.SIZE);
-        bottomRight.y = ((this.bottom+this.height+1)*Tile.SIZE)+City.transY + (this.worldLoc.y * 50 * Tile.SIZE);
+        bottomRight.x = ((this.right+this.width+1)*Tile.SIZE) + (this.worldLoc.x * City.width * Tile.SIZE);
+        bottomRight.y = ((this.bottom+this.height+1)*Tile.SIZE) + (this.worldLoc.y * City.height * Tile.SIZE);
 
         this.poly.addNode(topLeft.x, topLeft.y);
         this.poly.addNode(bottomRight.x, topLeft.y);
@@ -69,10 +69,10 @@ export default class Building{
         this.poly._nodes = [];
         let doors = [];
         for (let i = 0; i < this.rooms.length; i++) {
-            let top = (this.rooms[i].top*Tile.SIZE)+City.transY;
-            let left = (this.rooms[i].left*Tile.SIZE)+City.transX;
-            let bottom = (this.rooms[i].bottom*Tile.SIZE)+City.transY;
-            let right = (this.rooms[i].right*Tile.SIZE)+City.transX;
+            let top = (this.rooms[i].top*Tile.SIZE) + (this.worldLoc.y * City.height * Tile.SIZE);
+            let left = (this.rooms[i].left*Tile.SIZE) + (this.worldLoc.x * City.width * Tile.SIZE);
+            let bottom = (this.rooms[i].bottom*Tile.SIZE) + (this.worldLoc.y * City.height * Tile.SIZE);
+            let right = (this.rooms[i].right*Tile.SIZE) + (this.worldLoc.x * City.width * Tile.SIZE);
             let topPad = top+8;
             let leftPad = left+8;
             let bottomPad = bottom-8;
@@ -168,11 +168,11 @@ export default class Building{
         // loop through again to get the door nodes
         let poly;
         for (let i = 0; i < this.rooms.length; i++) {
-
-            let top = (this.rooms[i].top*Tile.SIZE)+City.transY;
-            let left = (this.rooms[i].left*Tile.SIZE)+City.transX;
-            let bottom = (this.rooms[i].bottom*Tile.SIZE)+City.transY;
-            let right = (this.rooms[i].right*Tile.SIZE)+City.transX;
+            
+            let top = (this.rooms[i].top*Tile.SIZE) + (this.worldLoc.y * City.height * Tile.SIZE);
+            let left = (this.rooms[i].left*Tile.SIZE) + (this.worldLoc.x * City.width * Tile.SIZE);
+            let bottom = (this.rooms[i].bottom*Tile.SIZE) + (this.worldLoc.y * City.height * Tile.SIZE);
+            let right = (this.rooms[i].right*Tile.SIZE) + (this.worldLoc.x * City.width * Tile.SIZE);
 
             // Let's move the outer walls in a bit for walls
             top += 8;
