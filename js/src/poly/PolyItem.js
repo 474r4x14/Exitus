@@ -44,7 +44,7 @@ export default class PolyItem{
 
 	draw(context, color = null)
 	{
-        if (context !== undefined) {
+        if (context !== undefined && this._nodes.length > 0) {
         	if (color === null) {
                 context.strokeStyle = '#00ff00';
             } else {
