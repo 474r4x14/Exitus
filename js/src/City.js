@@ -7,7 +7,7 @@ import Building from "./Building";
 
 export default class City
 {
-	constructor(x=0,y=0, seed=0)
+	constructor(x=0,y=0, seed=null)
 	{
 		// Array of all the tiles
 		/** @type {Array<Array<Tile>>} */
@@ -42,6 +42,11 @@ export default class City
 		this.roads = [];
 
 		this.worldLoc = new Point(x,y);
+
+		if (seed === null) {
+			seed = Math.floor(Math.random()*10000);
+		}
+
 		this.rand = new SeededRand(seed);
 		// The exit points have their own random seed as they might not be set so this prevents inconsistencies
 		this.exitRand = new SeededRand(Math.floor(this.rand.random()* 10000));
@@ -224,7 +229,6 @@ export default class City
                         // It's a straight piece of road, let's find siblings!
                         let destPoint = this.tiles[y][x].followRoad();
                         // TODO need to get the entrances of middle road pieces (they're in the destPoint object now)
-						// console.log('entrances', roadLoc,entrances, destPoint.doors);
                         var road = new Road(roadLoc, new Point(destPoint.x,destPoint.y), destPoint.doors, this.worldLoc);
                         this.roads.push(road);
                     }
@@ -447,10 +451,8 @@ export default class City
         // Create joining polys for doors
         for (let i=0; i < building.rooms.length; i++) {
         	let room = building.rooms[i];
-        	// console.log(building.rooms[i].left+' === '+left+' && '+building.rooms[i].doors.west+' === true');
             if (building.rooms[i].left === left && building.rooms[i].doors.west === true && (this.tiles[room.top][room.left-1]) !== undefined) {
                 this.tiles[room.top][room.left-1].buildingAccess.east = true;
-                // console.log('setting east building access');
             }
 
 
@@ -459,12 +461,9 @@ export default class City
             }
             if (building.rooms[i].top === top && building.rooms[i].doors.north === true && (this.tiles[room.top-1]) !== undefined) {
                 this.tiles[room.top-1][room.left].buildingAccess.south = true;
-                // console.log('setting south building access');
             }
-            // console.log('north check',building.rooms[i].bottom+' === '+(bottom+1)+' && '+building.rooms[i].doors.south+' === true && '+(this.tiles[room.bottom+1])+' !== undefined');
             if (building.rooms[i].bottom === bottom+1 && building.rooms[i].doors.south === true && (this.tiles[room.bottom+1]) !== undefined) {
                 this.tiles[room.bottom][room.left].buildingAccess.north = true;
-                // console.log('setting north building access');
             }
         }
 
@@ -601,7 +600,8 @@ City.transY = 0;
 City.polyPath = new PolyPath();
 
 // Neighbouring city blocks, used for transitioning through the world
-City.blocks = {center:null,east:null,west:null, north:null, south:null, northEast:null, northWest:null, southEast:null, southWest:null};
+/** {Object<City>} */
+City.blocks = {};
 
 City.width = 16;
 City.height = 16;
