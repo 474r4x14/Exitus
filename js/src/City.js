@@ -219,7 +219,8 @@ export default class City
                         this.tiles[y][x].roadId === 11 ||
                         this.tiles[y][x].roadId === 12 ||
                         this.tiles[y][x].roadId === 13 ||
-                        this.tiles[y][x].roadId === 14
+                        this.tiles[y][x].roadId === 14 ||
+                        this.tiles[y][x].roadId === 15
                     ) {
                         // Just create a single square poly
                         this.tiles[y][x].roadProcessed = true;
