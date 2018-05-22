@@ -18,12 +18,8 @@ export default class Tile
         this.loc = loc;
 
         /** {Object<Tile>} */
-        this.neighbours = {
-            north:undefined,
-            south:undefined,
-            east:undefined,
-            west:undefined
-        }
+        this.neighbours = {};
+
         this.roadId = 0;
         this.roadProcessed = false;
 
@@ -108,10 +104,8 @@ export default class Tile
 
         if (this.buildingAccess.north) {
             returnData.doors.push({x: this.x, y: this.y, side: City.SIDE_NORTH});
-            // console.log('access north');
         }
         if (this.buildingAccess.south) {
-            // console.log('access south');
             returnData.doors.push({x: this.x, y: this.y, side: City.SIDE_SOUTH});
         }
         if (this.buildingAccess.east) {

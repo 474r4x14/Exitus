@@ -4,9 +4,45 @@ import Spriteset from "./Spriteset";
 import Point from "./utils/Point";
 
 var isSpriteLoaded = false;
-var city = new City();
-city.generate();
-City.blocks.center = city;
+City.blocks.center = new City();
+City.blocks.center.generate();
+
+City.blocks.north = new City(0,-1);
+City.blocks.north.exitPoints.south = City.blocks.center.exitPoints.north;
+City.blocks.north.generate();
+
+City.blocks.east = new City(1,0);
+City.blocks.east.exitPoints.west = City.blocks.center.exitPoints.east;
+City.blocks.east.generate();
+
+City.blocks.south = new City(0,1);
+City.blocks.south.exitPoints.north = City.blocks.center.exitPoints.south;
+City.blocks.south.generate();
+
+City.blocks.west = new City(-1,0);
+City.blocks.west.exitPoints.east = City.blocks.center.exitPoints.west;
+City.blocks.west.generate();
+
+City.blocks.northEast = new City(1,-1);
+City.blocks.northEast.exitPoints.west = City.blocks.north.exitPoints.east;
+City.blocks.northEast.exitPoints.south = City.blocks.east.exitPoints.north;
+City.blocks.northEast.generate();
+
+City.blocks.southEast = new City(1,1);
+City.blocks.southEast.exitPoints.west = City.blocks.south.exitPoints.east;
+City.blocks.southEast.exitPoints.north = City.blocks.east.exitPoints.north;
+City.blocks.southEast.generate();
+
+City.blocks.northWest = new City(-1,-1);
+City.blocks.northWest.exitPoints.east = City.blocks.north.exitPoints.west;
+City.blocks.northWest.exitPoints.south = City.blocks.west.exitPoints.north;
+City.blocks.northWest.generate();
+
+City.blocks.southWest = new City(-1,1);
+City.blocks.southWest.exitPoints.east = City.blocks.south.exitPoints.west;
+City.blocks.southWest.exitPoints.north = City.blocks.west.exitPoints.north;
+City.blocks.southWest.generate();
+
 
 let ctx;
 var spriteset;
@@ -79,154 +115,6 @@ window.onload = function(e) {
         let worldLoc = new Point();
         worldLoc.x = Math.floor((-City.transX+center.x+((Tile.SIZE*City.width)/2)) / (Tile.SIZE*City.width));
         worldLoc.y = Math.floor((-City.transY+center.y+((Tile.SIZE*City.height)/2)) / (Tile.SIZE*City.height));
-        // Pixel checking to know when to load in a new city block
-        let worldPositionCheck = new Point(((City.transX-center.x) % (Tile.SIZE*City.width)),((City.transY-center.y) % (Tile.SIZE*City.height)));
-
-
-        // Load world East
-        if (
-            (worldPositionCheck.x < 0 && worldPositionCheck.x > -100) ||
-            (worldPositionCheck.x < 400 && worldPositionCheck.x > 300)
-        ) {
-            if (City.blocks.east === null) {
-                City.blocks.east = new City(City.blocks.center.worldLoc.x+1, City.blocks.center.worldLoc.y);
-                City.blocks.east.exitPoints.west = City.blocks.center.exitPoints.east;
-                City.blocks.east.generate();
-            }
-
-            // Load world South East
-            if (
-                (worldPositionCheck.y < 0 && worldPositionCheck.y > -100) ||
-                (worldPositionCheck.y < 400 && worldPositionCheck.y > 300)
-            ) {
-                if (City.blocks.southEast === null && City.blocks.south !== null) {
-                    City.blocks.southEast = new City(City.blocks.center.worldLoc.x + 1, City.blocks.center.worldLoc.y + 1);
-                    City.blocks.southEast.exitPoints.west = City.blocks.south.exitPoints.east;
-                    City.blocks.southEast.generate();
-                }
-            }
-
-            // Load world North East
-            if (
-                (worldPositionCheck.y > 0 && worldPositionCheck.y < 100) ||
-                (worldPositionCheck.y > -400 && worldPositionCheck.y < -300)
-            ) {
-                if (City.blocks.northEast === null && City.blocks.north !== null) {
-                    City.blocks.northEast = new City(City.blocks.center.worldLoc.x + 1, City.blocks.center.worldLoc.y - 1);
-                    City.blocks.northEast.exitPoints.west = City.blocks.north.exitPoints.east;
-                    City.blocks.northEast.generate();
-                }
-            }
-
-        }
-
-        // Load world West
-        if (
-            (worldPositionCheck.x > 0 && worldPositionCheck.x < 100) ||
-            (worldPositionCheck.x > -400 && worldPositionCheck.x < -300)
-        ) {
-            if (City.blocks.west === null) {
-                City.blocks.west = new City(City.blocks.center.worldLoc.x-1, City.blocks.center.worldLoc.y);
-                City.blocks.west.exitPoints.east = City.blocks.center.exitPoints.west;
-                City.blocks.west.generate();
-            }
-
-            // Load world South West
-            if (
-                (worldPositionCheck.y < 0 && worldPositionCheck.y > -100) ||
-                (worldPositionCheck.y < 400 && worldPositionCheck.y > 300)
-            ) {
-                if (City.blocks.southWest === null && City.blocks.south !== null) {
-                    City.blocks.southWest = new City(City.blocks.center.worldLoc.x - 1, City.blocks.center.worldLoc.y + 1);
-                    City.blocks.southWest.exitPoints.east = City.blocks.south.exitPoints.west;
-                    City.blocks.southWest.generate();
-                }
-            }
-
-            // Load world North West
-            if (
-                (worldPositionCheck.y > 0 && worldPositionCheck.y < 100) ||
-                (worldPositionCheck.y > -400 && worldPositionCheck.y < -300)
-            ) {
-                if (City.blocks.northWest === null && City.blocks.north !== null) {
-                    City.blocks.northWest = new City(City.blocks.center.worldLoc.x - 1, City.blocks.center.worldLoc.y - 1);
-                    City.blocks.northWest.exitPoints.east = City.blocks.north.exitPoints.west;
-                    City.blocks.northWest.generate();
-                }
-            }
-        }
-
-        // Load world South
-        if (
-            (worldPositionCheck.y < 0 && worldPositionCheck.y > -100) ||
-            (worldPositionCheck.y < 400 && worldPositionCheck.y > 300)
-        ) {
-            if (City.blocks.south === null) {
-                City.blocks.south = new City(City.blocks.center.worldLoc.x, City.blocks.center.worldLoc.y+1);
-                City.blocks.south.exitPoints.north = City.blocks.center.exitPoints.south;
-                City.blocks.south.generate();
-            }
-
-            // Load world South East
-            if (
-                (worldPositionCheck.x < 0 && worldPositionCheck.x > -100) ||
-                (worldPositionCheck.x < 400 && worldPositionCheck.x > 300)
-            ) {
-
-                if (City.blocks.southEast === null && City.blocks.east !== null) {
-                    City.blocks.southEast = new City(City.blocks.center.worldLoc.x + 1, City.blocks.east.worldLoc.y + 1);
-                    City.blocks.southEast.exitPoints.north = City.blocks.east.exitPoints.south;
-                    City.blocks.southEast.generate();
-                }
-            }
-            // Load world South West
-            if (
-                (worldPositionCheck.x > 0 && worldPositionCheck.x < 100) ||
-                (worldPositionCheck.x > -400 && worldPositionCheck.x < -300)
-            ) {
-                if (City.blocks.southWest === null && City.blocks.west) {
-                    City.blocks.southWest = new City(City.blocks.center.worldLoc.x - 1, City.blocks.west.worldLoc.y + 1);
-                    City.blocks.southWest.exitPoints.north = City.blocks.west.exitPoints.south;
-                    City.blocks.southWest.generate();
-                }
-            }
-
-        }
-        // Load world North
-        if (
-            (worldPositionCheck.y > 0 && worldPositionCheck.y < 100) ||
-            (worldPositionCheck.y > -400 && worldPositionCheck.y < -300)
-        ) {
-            if (City.blocks.north === null) {
-                City.blocks.north = new City(City.blocks.center.worldLoc.x, City.blocks.center.worldLoc.y-1);
-                City.blocks.north.exitPoints.south = City.blocks.center.exitPoints.north;
-                City.blocks.north.generate();
-            }
-
-            // Load world North East
-            if (
-                (worldPositionCheck.x < 0 && worldPositionCheck.x > -100) ||
-                (worldPositionCheck.x < 400 && worldPositionCheck.x > 300)
-            ) {
-                if (City.blocks.northEast === null && City.blocks.east !== null) {
-                    City.blocks.northEast = new City(City.blocks.center.worldLoc.x + 1, City.blocks.east.worldLoc.y - 1);
-                    City.blocks.northEast.exitPoints.south = City.blocks.east.exitPoints.north;
-                    City.blocks.northEast.generate();
-                }
-            }
-            // Load world North West
-            if (
-                (worldPositionCheck.x > 0 && worldPositionCheck.x < 100) ||
-                (worldPositionCheck.x > -400 && worldPositionCheck.x < -300)
-            ) {
-                if (City.blocks.northWest === null && City.blocks.west) {
-                    City.blocks.northWest = new City(City.blocks.center.worldLoc.x - 1, City.blocks.west.worldLoc.y - 1);
-                    City.blocks.northWest.exitPoints.south = City.blocks.west.exitPoints.north;
-                    City.blocks.northWest.generate();
-                }
-            }
-
-        }
 
         // Shift world East
         if (worldLoc.x > City.worldLoc.x) {
@@ -234,15 +122,23 @@ window.onload = function(e) {
 
             City.blocks.west = City.blocks.center;
             City.blocks.center = City.blocks.east;
-            City.blocks.east = null;
+            City.blocks.east = new City(City.blocks.center.worldLoc.x+1,City.blocks.center.worldLoc.y);
+            City.blocks.east.exitPoints.west = City.blocks.center.exitPoints.east;
+            City.blocks.east.generate();
 
             City.blocks.southWest = City.blocks.south;
             City.blocks.south = City.blocks.southEast;
-            City.blocks.southEast = null;
+            City.blocks.southEast = new City(City.blocks.south.worldLoc.x+1,City.blocks.south.worldLoc.y);
+            City.blocks.southEast.exitPoints.west = City.blocks.south.exitPoints.east;
+            City.blocks.southEast.exitPoints.north = City.blocks.east.exitPoints.north;
+            City.blocks.southEast.generate();
 
             City.blocks.northWest = City.blocks.north;
             City.blocks.north = City.blocks.northEast;
-            City.blocks.northEast = null;
+            City.blocks.northEast = new City(City.blocks.north.worldLoc.x+1,City.blocks.north.worldLoc.y);
+            City.blocks.northEast.exitPoints.west = City.blocks.north.exitPoints.east;
+            City.blocks.northEast.exitPoints.south = City.blocks.east.exitPoints.north;
+            City.blocks.northEast.generate();
         }
 
         // Shift world West
@@ -250,46 +146,71 @@ window.onload = function(e) {
             City.worldLoc.x--;
             City.blocks.east = City.blocks.center;
             City.blocks.center = City.blocks.west;
-            City.blocks.west = null;
+            City.blocks.west = new City(City.blocks.center.worldLoc.x-1,City.blocks.center.worldLoc.y);
+            City.blocks.west.exitPoints.east = City.blocks.center.exitPoints.west;
+            City.blocks.west.generate();
 
             City.blocks.northEast = City.blocks.north;
             City.blocks.north = City.blocks.northWest;
-            City.blocks.northWest = null;
+            City.blocks.northWest = new City(City.blocks.north.worldLoc.x-1,City.blocks.north.worldLoc.y);
+            City.blocks.northWest.exitPoints.east = City.blocks.north.exitPoints.west;
+            City.blocks.northWest.exitPoints.south = City.blocks.west.exitPoints.north;
+            City.blocks.northWest.generate();
 
             City.blocks.southEast = City.blocks.south;
             City.blocks.south = City.blocks.southWest;
-            City.blocks.southWest = null;
+            City.blocks.southWest = new City(City.blocks.south.worldLoc.x-1,City.blocks.south.worldLoc.y);
+            City.blocks.southWest.exitPoints.east = City.blocks.south.exitPoints.west;
+            City.blocks.southWest.exitPoints.north = City.blocks.west.exitPoints.north;
+            City.blocks.southWest.generate();
         }
+
 
         // Shift world South
         if (worldLoc.y > City.worldLoc.y) {
             City.worldLoc.y++;
             City.blocks.north = City.blocks.center;
             City.blocks.center = City.blocks.south;
-            City.blocks.south = null;
+            City.blocks.south = new City(City.blocks.center.worldLoc.x,City.blocks.center.worldLoc.y+1);
+            City.blocks.south.exitPoints.north = City.blocks.center.exitPoints.south;
+            City.blocks.south.generate();
 
             City.blocks.northEast = City.blocks.east;
             City.blocks.east = City.blocks.southEast;
-            City.blocks.southEast = null;
+            City.blocks.southEast = new City(City.blocks.east.worldLoc.x,City.blocks.east.worldLoc.y+1);
+            City.blocks.southEast.exitPoints.west = City.blocks.south.exitPoints.east;
+            City.blocks.southEast.exitPoints.north = City.blocks.east.exitPoints.north;
+            City.blocks.southEast.generate();
 
             City.blocks.northWest = City.blocks.west;
             City.blocks.west = City.blocks.southWest;
-            City.blocks.southWest = null;
+            City.blocks.southWest = new City(City.blocks.west.worldLoc.x,City.blocks.west.worldLoc.y+1);
+            City.blocks.southWest.exitPoints.east = City.blocks.south.exitPoints.west;
+            City.blocks.southWest.exitPoints.north = City.blocks.west.exitPoints.north;
+            City.blocks.southWest.generate();
         }
         // Shift world North
         if (worldLoc.y < City.worldLoc.y) {
             City.worldLoc.y--;
             City.blocks.south = City.blocks.center;
             City.blocks.center = City.blocks.north;
-            City.blocks.north = null;
+            City.blocks.north = new City(City.blocks.center.worldLoc.x,City.blocks.center.worldLoc.y-1);
+            City.blocks.north.exitPoints.south = City.blocks.center.exitPoints.north;
+            City.blocks.north.generate();
 
             City.blocks.southEast = City.blocks.east;
             City.blocks.east = City.blocks.northEast;
-            City.blocks.northEast = null;
+            City.blocks.northEast = new City(City.blocks.east.worldLoc.x,City.blocks.east.worldLoc.y-1);
+            City.blocks.northEast.exitPoints.west = City.blocks.north.exitPoints.east;
+            City.blocks.northEast.exitPoints.south = City.blocks.east.exitPoints.north;
+            City.blocks.northEast.generate();
 
             City.blocks.southWest = City.blocks.west;
             City.blocks.west = City.blocks.northWest;
-            City.blocks.northWest = null;
+            City.blocks.northWest = new City(City.blocks.west.worldLoc.x,City.blocks.west.worldLoc.y-1);
+            City.blocks.northWest.exitPoints.east = City.blocks.north.exitPoints.west;
+            City.blocks.northWest.exitPoints.south = City.blocks.west.exitPoints.north;
+            City.blocks.northWest.generate();
         }
     }
 
@@ -339,7 +260,7 @@ function redraw()
     let canvas = document.getElementById("exitus");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (City.blocks.center!== null) {
+    if (City.blocks.center !== undefined) {
         for (let y = 0; y < City.blocks.center.tiles.length; y++) {
             for (let x = 0; x < City.blocks.center.tiles[0].length; x++) {
                 City.blocks.center.tiles[y][x].draw(ctx);
@@ -352,56 +273,56 @@ function redraw()
             City.blocks.center.roads[y].draw(ctx);
         }
     }
-    if (City.blocks.east !== null) {
+    if (City.blocks.east !== undefined) {
         for (let y = 0; y < City.blocks.east.tiles.length; y++) {
             for (let x = 0; x < City.blocks.east.tiles[0].length; x++) {
                 City.blocks.east.tiles[y][x].draw(ctx);
             }
         }
     }
-    if (City.blocks.west !== null) {
+    if (City.blocks.west !== undefined) {
         for (let y = 0; y < City.blocks.west.tiles.length; y++) {
             for (let x = 0; x < City.blocks.west.tiles[0].length; x++) {
                 City.blocks.west.tiles[y][x].draw(ctx);
             }
         }
     }
-    if (City.blocks.south !== null) {
+    if (City.blocks.south !== undefined) {
         for (let y = 0; y < City.blocks.south.tiles.length; y++) {
             for (let x = 0; x < City.blocks.south.tiles[0].length; x++) {
                 City.blocks.south.tiles[y][x].draw(ctx);
             }
         }
     }
-    if (City.blocks.north !== null) {
+    if (City.blocks.north !== undefined) {
         for (let y = 0; y < City.blocks.north.tiles.length; y++) {
             for (let x = 0; x < City.blocks.north.tiles[0].length; x++) {
                 City.blocks.north.tiles[y][x].draw(ctx);
             }
         }
     }
-    if (City.blocks.northWest !== null) {
+    if (City.blocks.northWest !== undefined) {
         for (let y = 0; y < City.blocks.northWest.tiles.length; y++) {
             for (let x = 0; x < City.blocks.northWest.tiles[0].length; x++) {
                 City.blocks.northWest.tiles[y][x].draw(ctx);
             }
         }
     }
-    if (City.blocks.northEast !== null) {
+    if (City.blocks.northEast !== undefined) {
         for (let y = 0; y < City.blocks.northEast.tiles.length; y++) {
             for (let x = 0; x < City.blocks.northEast.tiles[0].length; x++) {
                 City.blocks.northEast.tiles[y][x].draw(ctx);
             }
         }
     }
-    if (City.blocks.southWest !== null) {
+    if (City.blocks.southWest !== undefined) {
         for (let y = 0; y < City.blocks.southWest.tiles.length; y++) {
             for (let x = 0; x < City.blocks.southWest.tiles[0].length; x++) {
                 City.blocks.southWest.tiles[y][x].draw(ctx);
             }
         }
     }
-    if (City.blocks.southEast !== null) {
+    if (City.blocks.southEast !== undefined) {
         for (let y = 0; y < City.blocks.southEast.tiles.length; y++) {
             for (let x = 0; x < City.blocks.southEast.tiles[0].length; x++) {
                 City.blocks.southEast.tiles[y][x].draw(ctx);

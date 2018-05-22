@@ -209,15 +209,12 @@ export default class PolyPath{
 
 	clickCheck(startX,startY, endX,endY) {
 		var path = []; // PolyEdge array
-		if (
-			this.polyStart != null &&
-			this.polyFinish != null
-		) {
-			this.polyStart = null;
-			this.polyFinish = null;
-			this.nodeStart = new PolyNode();
-			this.nodeFinish = new PolyNode();
-		}
+
+		this.polyStart = null;
+		this.polyFinish = null;
+		this.nodeStart = new PolyNode();
+		this.nodeFinish = new PolyNode();
+
 		var j;
 		// just loop through and test both start & end point in polys
 		for (var i=0; i < this.polyItems.length; i++) {
@@ -227,14 +224,12 @@ export default class PolyPath{
 			) {
 				this.polyStart = this.polyItems[i];
 				this.nodeStart = new PolyEdge(startX,startY,startX,startY);
-				this.nodeStart.x = startX;
-				this.nodeStart.y = startY;
 				this.nodeStart.addPoly(this.polyStart);
 				for (j=0; j<this.polyStart.edges.length;j++ ) {
 					this.nodeStart.node(this.polyStart.edges[j]);
 				}
-				//return;
 			}
+
 
 			if (
 				this.polyFinish == null &&
@@ -242,8 +237,6 @@ export default class PolyPath{
 			) {
 				this.polyFinish = this.polyItems[i];
 				this.nodeFinish = new PolyEdge(endX,endY,endX,endY);
-				this.nodeFinish.x = endX;
-				this.nodeFinish.y = endY;
 				this.nodeFinish.addPoly(this.polyFinish);
 				for (j=0; j<this.polyFinish.edges.length;j++ ) {
 					this.nodeFinish.node(this.polyFinish.edges[j]);
