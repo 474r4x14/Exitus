@@ -2,6 +2,7 @@ import Tile from './Tile';
 import City from './City';
 import Spriteset from "./Spriteset";
 import Point from "./utils/Point";
+import Character from "./character/Character";
 
 var isSpriteLoaded = false;
 City.blocks.center = new City();
@@ -43,12 +44,12 @@ City.blocks.southWest.exitPoints.east = City.blocks.south.exitPoints.west;
 City.blocks.southWest.exitPoints.north = City.blocks.west.exitPoints.north;
 City.blocks.southWest.generate();
 
+// Let's pick a random road as a starting position for the character
+let randRoad = City.blocks.center.roads[Math.floor(Math.random()*City.blocks.center.roads.length)];
+let character = new Character((randRoad.start.x*Tile.SIZE)+Tile.SIZE/2,(randRoad.start.y*Tile.SIZE)+Tile.SIZE/2);
 
 let ctx;
 var spriteset;
-
-let startClick = null;
-let path = [];
 
 let center = new Point();
 
@@ -110,6 +111,8 @@ window.onload = function(e) {
             City.transY += point.y - startY;
             startX = point.x;
             startY = point.y;
+        } else {
+            character.lookAt(point);
         }
         // The world location, used to move to a new block
         let worldLoc = new Point();
@@ -227,20 +230,14 @@ window.onload = function(e) {
         mouseDown = false;
 
         if (mouseDownLoc.x === startX && mouseDownLoc.y === startY) {
-            if (startClick === null) {
-                path = [];
-                startClick = new Point(point.x-City.transX, point.y-City.transY);
-            } else {
-                let pathNodes = City.polyPath.clickCheck(startClick.x,startClick.y,point.x-City.transX, point.y-City.transY);
-                if (pathNodes) {
-                    for (var x = 0; x < pathNodes.length; x++) {
-                        path.push(pathNodes[x].centre);
-                    }
+            let pathNodes = City.polyPath.clickCheck(character.x,character.y,point.x-City.transX, point.y-City.transY);
+            if (pathNodes) {
+                character.path = [];
+                for (var x = 0; x < pathNodes.length; x++) {
+                    character.path.push(pathNodes[x].centre);
                 }
-                startClick = null;
             }
         }
-
     }
 
     canvas.ontouchmove = inputMove;
@@ -330,18 +327,22 @@ function redraw()
         }
     }
 
-    if (path.length > 0) {
+
+    if (character.path.length > 0) {
         ctx.strokeStyle = '#ff0000';
         ctx.lineWidth = 2;
         ctx.beginPath();
 
-        ctx.moveTo(path[0].x+City.transX, path[0].y+City.transY);
-        for (var i=1; i < path.length;i++) {
-            ctx.lineTo(path[i].x+City.transX, path[i].y+City.transY);
+        ctx.moveTo(character.path[0].x+City.transX, character.path[0].y+City.transY);
+        for (var i=1; i < character.path.length;i++) {
+            ctx.lineTo(character.path[i].x+City.transX, character.path[i].y+City.transY);
         }
 
         ctx.stroke();
     }
+
+    character.draw(ctx);
+
     requestAnimationFrame(redraw);
 }
 
