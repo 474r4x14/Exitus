@@ -11,6 +11,7 @@ constructor(x,y,type){
         this.speed = 1;
         this.target = null;
         this.type = type;
+        this.active = false;
     };
 
 
@@ -46,7 +47,11 @@ constructor(x,y,type){
         if (this.type === Character.TYPE_ENEMY) {
             context.strokeStyle = '#ff0000';
         } else {
-            context.strokeStyle = '#00ff00';
+            if (this.active) {
+                context.strokeStyle = '#00ff00';
+            } else {
+                context.strokeStyle = '#000000';
+            }
         }
         context.stroke();
         // Character direction line
