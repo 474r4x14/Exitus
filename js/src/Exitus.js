@@ -46,11 +46,11 @@ City.blocks.southWest.generate();
 
 // Let's pick a random road as a starting position for the character
 let randRoad = City.blocks.center.roads[Math.floor(Math.random()*City.blocks.center.roads.length)];
-let character = new Character((randRoad.start.x*Tile.SIZE)+Tile.SIZE/2,(randRoad.start.y*Tile.SIZE)+Tile.SIZE/2);
+let character = new Character((randRoad.start.x*Tile.SIZE)+Tile.SIZE/2,(randRoad.start.y*Tile.SIZE)+Tile.SIZE/2, Character.TYPE_PLAYER);
 let characters = [];
 characters.push(character);
 randRoad = City.blocks.center.roads[Math.floor(Math.random()*City.blocks.center.roads.length)];
-character = new Character((randRoad.start.x*Tile.SIZE)+Tile.SIZE/2,(randRoad.start.y*Tile.SIZE)+Tile.SIZE/2);
+character = new Character((randRoad.start.x*Tile.SIZE)+Tile.SIZE/2,(randRoad.start.y*Tile.SIZE)+Tile.SIZE/2, Character.TYPE_PLAYER);
 characters.push(character);
 
 let selectedCharacter;
@@ -239,7 +239,7 @@ window.onload = function(e) {
         let selectedNewCharacter = false;
         let i,j;
         for (i = 0; i < characters.length; i++) {
-            if (
+            if (characters[i].type === Character.TYPE_PLAYER &&
                 point.x > characters[i].x-10+City.transX && point.x < characters[i].x+10+City.transX &&
                 point.y > characters[i].y-10+City.transY && point.y < characters[i].y+10+City.transY
             ) {
