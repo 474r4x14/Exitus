@@ -581,6 +581,38 @@ export default class City
 		// Array containing the buildings details
 		this.buildings = [];
 	}
+
+	// Find a random tile, used in enemy idle movement
+	static randomTile()
+	{
+		let rnd = Math.floor(Math.random()*9);
+		let block;
+		if (rnd === 0) {
+			block = City.blocks.northWest;
+		} else if (rnd === 1) {
+			block = City.blocks.north;
+		} else if (rnd === 2) {
+			block = City.blocks.northEast;
+		} else if (rnd === 3) {
+			block = City.blocks.west;
+		} else if (rnd === 4) {
+			block = City.blocks.center;
+		} else if (rnd === 5) {
+			block = City.blocks.east;
+		} else if (rnd === 6) {
+			block = City.blocks.southWest;
+		} else if (rnd === 7) {
+			block = City.blocks.south;
+		} else if (rnd === 8) {
+			block = City.blocks.southEast;
+        }
+        let rndX = Math.floor(Math.random()*City.width), rndY = Math.floor(Math.random()*City.height);
+		if (block.tiles[rndY][rndX].type === Tile.TYPE_ROAD) {
+			return block.tiles[rndY][rndX];
+		} else {
+			return this.randomTile();
+		}
+	}
 };
 City.SIDE_NORTH = 1;
 City.SIDE_SOUTH = 2;

@@ -1,20 +1,51 @@
 import RotationObject from '../utils/RotationObject';
-import Weapon from './Weapon';
 import Point from "../utils/Point";
 import City from "../City";
+import PolyItem from "../poly/PolyItem";
+import Tile from "../Tile";
 export default class Character extends RotationObject
 {
-constructor(x,y,type){
-    super(x,y);
+    constructor(x,y,type){
+        super(x,y);
         this.lookingRotation = 0;
         this.path = [];
         this.speed = 1;
+        if (type === Character.TYPE_ENEMY) {
+            this.speed = .25;
+        }
         this.target = null;
         this.type = type;
         this.active = false;
+
+        this.fov = new PolyItem();
+        let pos = new Point(this.x+City.transX,this.y+City.transY);
+        let vx, vy;
+        vx = Math.cos((this.lookingRotation-20)*Math.PI/180)*(50);
+        vy = Math.sin((this.lookingRotation-20)*Math.PI/180)*(50);
+        this.fov.addNode(pos.x,pos.y);
+        this.fov.addNode(pos.x+vx,pos.y+vy);
+        vx = Math.cos((this.lookingRotation+20)*Math.PI/180)*(50);
+        vy = Math.sin((this.lookingRotation+20)*Math.PI/180)*(50);
+        this.fov.addNode(pos.x+vx,pos.y+vy);
+        this.action = Character.ACTION_IDLE;
+        if (this.type === Character.TYPE_ENEMY) {
+            this.enemyIdleDestination();
+        }
     };
 
 
+    enemyIdleDestination()
+    {
+        let randTile = City.randomTile();
+        console.log('randTile',randTile);
+        let pathNodes = City.polyPath.clickCheck(this.x, this.y, (randTile.x*Tile.SIZE) + (Tile.SIZE/2) - City.transX, (randTile.y*Tile.SIZE) + (Tile.SIZE/2) - City.transY);
+        if (pathNodes) {
+            this.path = [];
+            for (var x = 0; x < pathNodes.length; x++) {
+                this.path.push(pathNodes[x].centre);
+            }
+        }
+    }
     draw(context)
     {
         if (this.path.length > 0) {
@@ -25,6 +56,11 @@ constructor(x,y,type){
             var radians = Math.atan2(dy, dx);
             this.rotation = radians * 180 / Math.PI;
 
+            if (this.type === Character.TYPE_ENEMY && this.action === Character.ACTION_IDLE) {
+                this.lookingRotation = this.rotation;
+            }
+
+
             this.move();
 
             dx = pathZero.x - this.x;
@@ -34,6 +70,8 @@ constructor(x,y,type){
             if (dist < 2) {
                 this.path.shift();
             }
+        } else if (this.type === Character.TYPE_ENEMY && this.action === Character.ACTION_IDLE) {
+            this.enemyIdleDestination();
         }
 
         let pos = new Point(this.x+City.transX,this.y+City.transY);
@@ -60,6 +98,19 @@ constructor(x,y,type){
         context.moveTo(pos.x,pos.y);
         context.lineTo(pos.x+vx,pos.y+vy);
         context.stroke();
+
+
+        pos = new Point(this.x,this.y);
+        this.fov._nodes = [];
+        vx = Math.cos((this.lookingRotation-20)*Math.PI/180)*(50);
+        vy = Math.sin((this.lookingRotation-20)*Math.PI/180)*(50);
+        this.fov.addNode(pos.x,pos.y);
+        this.fov.addNode(pos.x+vx,pos.y+vy);
+        vx = Math.cos((this.lookingRotation+20)*Math.PI/180)*(50);
+        vy = Math.sin((this.lookingRotation+20)*Math.PI/180)*(50);
+        this.fov.addNode(pos.x+vx,pos.y+vy);
+
+        this.fov.draw(context);
     }
 
     lookAt(location)
@@ -72,4 +123,5 @@ constructor(x,y,type){
 };
 Character.TYPE_PLAYER = 1;
 Character.TYPE_ENEMY = 2;
-
+Character.ACTION_IDLE = 0;
+Character.ACTION_CHASING = 1;
