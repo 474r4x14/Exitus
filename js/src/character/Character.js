@@ -31,6 +31,7 @@ export default class Character extends RotationObject
         if (this.type === Character.TYPE_ENEMY) {
             this.enemyIdleDestination();
         }
+        this.isTarget = false;
     };
 
 
@@ -85,7 +86,9 @@ export default class Character extends RotationObject
         if (this.type === Character.TYPE_ENEMY) {
             context.strokeStyle = '#ff0000';
         } else {
-            if (this.active) {
+            if (this.isTarget) {
+                context.strokeStyle = '#FFFFFF';
+            } else if (this.active) {
                 context.strokeStyle = '#00ff00';
             } else {
                 context.strokeStyle = '#000000';
