@@ -610,7 +610,7 @@ export default class City
 		if (block.tiles[rndY][rndX].type === Tile.TYPE_ROAD) {
 			return block.tiles[rndY][rndX];
 		} else {
-			return this.randomTile();
+			return City.randomTile();
 		}
 	}
 };
