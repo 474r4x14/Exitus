@@ -167,8 +167,6 @@ http://robotics.caltech.edu/wiki/images/e/e0/Astar.pdf
 
 		this.polyStart = null;
 		this.polyFinish = null;
-		this.nodeStart = new PolyNode();
-		this.nodeFinish = new PolyNode();
 
 		var j;
 		// just loop through and test both start & end point in polys
