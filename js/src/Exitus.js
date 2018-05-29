@@ -53,6 +53,10 @@ randRoad = City.blocks.center.roads[Math.floor(Math.random()*City.blocks.center.
 character = new Character((randRoad.start.x*Tile.SIZE)+Tile.SIZE/2,(randRoad.start.y*Tile.SIZE)+Tile.SIZE/2, Character.TYPE_PLAYER);
 characters.push(character);
 
+randRoad = City.blocks.center.roads[Math.floor(Math.random()*City.blocks.center.roads.length)];
+character = new Character((randRoad.start.x*Tile.SIZE)+Tile.SIZE/2,(randRoad.start.y*Tile.SIZE)+Tile.SIZE/2, Character.TYPE_ENEMY);
+characters.push(character);
+
 let selectedCharacter;
 
 let ctx;
@@ -119,7 +123,11 @@ window.onload = function(e) {
             startX = point.x;
             startY = point.y;
         } else {
-            character.lookAt(point);
+            for (let i = 0; i < characters.length; i++) {
+                if (characters[i].type === Character.TYPE_PLAYER) {
+                    characters[i].lookAt(point);
+                }
+            }
         }
         // The world location, used to move to a new block
         let worldLoc = new Point();
@@ -369,9 +377,30 @@ function redraw()
 
         ctx.stroke();
     }
-
-    for (i=0; i< characters.length; i++) {
-        characters[i].draw(ctx);
+    let j;
+    // Let's do some character based stuff here
+    for (j=0; j< characters.length; j++) {
+        characters[j].draw(ctx);
+        characters[j].isTarget = false;
+        // Is the character an enemy?
+        if (characters[j].type === Character.TYPE_PLAYER) {
+            // Let's loop through other characters
+            for (i=0; i< characters.length; i++) {
+                // Are there any player characters in the enemy's FOV?
+                if (
+                    characters[i].type === Character.TYPE_ENEMY &&
+                    characters[j].distance(characters[i].x, characters[i].y) < 50 &&
+                    characters[i].fov.pointInPolygon(characters[j]) &&
+                    characters[i].action === Character.ACTION_IDLE
+                ) {
+                    // Set the player character as the enemy's target
+                    characters[i].target = characters[j];
+                    characters[j].isTarget = true;
+                    // characters[i].action = Character.ACTION_CHASING;
+                    // characters[i].chase();
+                }
+            }
+        }
     }
 
     requestAnimationFrame(redraw);
