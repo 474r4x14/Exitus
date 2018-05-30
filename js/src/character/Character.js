@@ -3,6 +3,7 @@ import Point from "../utils/Point";
 import City from "../City";
 import PolyItem from "../poly/PolyItem";
 import Tile from "../Tile";
+import PolyRayItem from "../poly/PolyRayItem";
 export default class Character extends RotationObject
 {
     constructor(x,y,type){
@@ -17,7 +18,7 @@ export default class Character extends RotationObject
         this.type = type;
         this.active = false;
 
-        this.fov = new PolyItem();
+        this.fov = new PolyRayItem();
         let pos = new Point(this.x+City.transX,this.y+City.transY);
         let vx, vy;
         vx = Math.cos((this.lookingRotation-20)*Math.PI/180)*(50);
@@ -102,18 +103,40 @@ export default class Character extends RotationObject
         context.lineTo(pos.x+vx,pos.y+vy);
         context.stroke();
 
+        this.updateFOV();
+        this.fov.draw(context);
+    }
 
+    updateFOV()
+    {
+        // The non-blocking polys
+        // TODO populate this & send to addRay method
+        let fovPolys = [];
+        if (this.type === Character.TYPE_ENEMY) {
+            // console.log('xy',this.x,this.y);
+            console.log('worldTilePos = ',this.worldTilePos);
+            let i;
+            for (i = 0; i < City.polyPath.polyItems.length; i++) {
+                // if (City.polyPath.polyItems[i].edged[0]._startY > 0 && City.polyPath.polyItems[i].edged[0]._endY < 2000 && City.polyPath.polyItems[i].edged[0]._startX > 0 && City.polyPath.polyItems[i].edged[0]._endX < 2000) {
+                //
+                // }
+                //console.log(City.polyPath.polyItems[i]);
+            }
+        }
+
+        let pos,vx,vy;
         pos = new Point(this.x,this.y);
         this.fov._nodes = [];
-        vx = Math.cos((this.lookingRotation-20)*Math.PI/180)*(50);
-        vy = Math.sin((this.lookingRotation-20)*Math.PI/180)*(50);
         this.fov.addNode(pos.x,pos.y);
-        this.fov.addNode(pos.x+vx,pos.y+vy);
-        vx = Math.cos((this.lookingRotation+20)*Math.PI/180)*(50);
-        vy = Math.sin((this.lookingRotation+20)*Math.PI/180)*(50);
-        this.fov.addNode(pos.x+vx,pos.y+vy);
+        for (let i = -20; i <= 20; i+=5) {
+            vx = Math.cos((this.lookingRotation+i)*Math.PI/180)*(200);
+            vy = Math.sin((this.lookingRotation+i)*Math.PI/180)*(200);
+            this.fov.addRay(pos.x,pos.y,pos.x+vx, pos.y+vy);
 
-        this.fov.draw(context);
+
+        }
+
+
     }
 
     lookAt(location)

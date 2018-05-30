@@ -389,7 +389,7 @@ function redraw()
                 // Are there any player characters in the enemy's FOV?
                 if (
                     characters[i].type === Character.TYPE_ENEMY &&
-                    characters[j].distance(characters[i].x, characters[i].y) < 50 &&
+                    characters[j].distance(characters[i].x, characters[i].y) < 200 &&
                     characters[i].fov.pointInPolygon(characters[j]) &&
                     characters[i].action === Character.ACTION_IDLE
                 ) {
