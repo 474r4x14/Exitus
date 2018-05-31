@@ -2,6 +2,7 @@ import Tile from './Tile';
 import City from './City';
 import Spriteset from "./Spriteset";
 import Point from "./utils/Point";
+import Character from "./character/Character";
 
 var isSpriteLoaded = false;
 City.blocks.center = new City();
@@ -43,12 +44,23 @@ City.blocks.southWest.exitPoints.east = City.blocks.south.exitPoints.west;
 City.blocks.southWest.exitPoints.north = City.blocks.west.exitPoints.north;
 City.blocks.southWest.generate();
 
+// Let's pick a random road as a starting position for the character
+let randRoad = City.blocks.center.roads[Math.floor(Math.random()*City.blocks.center.roads.length)];
+let character = new Character((randRoad.start.x*Tile.SIZE)+Tile.SIZE/2,(randRoad.start.y*Tile.SIZE)+Tile.SIZE/2, Character.TYPE_PLAYER);
+let characters = [];
+characters.push(character);
+randRoad = City.blocks.center.roads[Math.floor(Math.random()*City.blocks.center.roads.length)];
+character = new Character((randRoad.start.x*Tile.SIZE)+Tile.SIZE/2,(randRoad.start.y*Tile.SIZE)+Tile.SIZE/2, Character.TYPE_PLAYER);
+characters.push(character);
+
+randRoad = City.blocks.center.roads[Math.floor(Math.random()*City.blocks.center.roads.length)];
+character = new Character((randRoad.start.x*Tile.SIZE)+Tile.SIZE/2,(randRoad.start.y*Tile.SIZE)+Tile.SIZE/2, Character.TYPE_ENEMY);
+characters.push(character);
+
+let selectedCharacter;
 
 let ctx;
 var spriteset;
-
-let startClick = null;
-let path = [];
 
 let center = new Point();
 
@@ -110,6 +122,12 @@ window.onload = function(e) {
             City.transY += point.y - startY;
             startX = point.x;
             startY = point.y;
+        } else {
+            for (let i = 0; i < characters.length; i++) {
+                if (characters[i].type === Character.TYPE_PLAYER) {
+                    characters[i].lookAt(point);
+                }
+            }
         }
         // The world location, used to move to a new block
         let worldLoc = new Point();
@@ -226,22 +244,38 @@ window.onload = function(e) {
         }
         mouseDown = false;
 
-        if (mouseDownLoc.x === startX && mouseDownLoc.y === startY) {
-            if (startClick === null) {
-                path = [];
-                startClick = new Point(point.x-City.transX, point.y-City.transY);
-            } else {
-                let pathNodes = City.polyPath.clickCheck(startClick.x,startClick.y,point.x-City.transX, point.y-City.transY);
-                if (pathNodes) {
-                    for (var x = 0; x < pathNodes.length; x++) {
-                        path.push(pathNodes[x].centre);
-                    }
+        let selectedNewCharacter = false;
+        let i,j;
+        for (i = 0; i < characters.length; i++) {
+            if (characters[i].type === Character.TYPE_PLAYER &&
+                point.x > characters[i].x-10+City.transX && point.x < characters[i].x+10+City.transX &&
+                point.y > characters[i].y-10+City.transY && point.y < characters[i].y+10+City.transY
+            ) {
+                for (j = 0; j < characters.length; j++) {
+                    characters[j].active = false;
                 }
-                startClick = null;
+                console.log('selected char ' + i);
+                characters[i].active = true;
+                selectedCharacter = characters[i];
+                selectedNewCharacter = true;
+                break;
             }
         }
 
+
+        if (mouseDownLoc.x === startX && mouseDownLoc.y === startY) {
+            if (selectedCharacter instanceof Character && !selectedNewCharacter) {
+                let pathNodes = City.polyPath.clickCheck(selectedCharacter.x, selectedCharacter.y, point.x - City.transX, point.y - City.transY);
+                if (pathNodes) {
+                    selectedCharacter.path = [];
+                    for (var x = 0; x < pathNodes.length; x++) {
+                        selectedCharacter.path.push(pathNodes[x].centre);
+                    }
+                }
+            }
+        }
     }
+    
 
     canvas.ontouchmove = inputMove;
     canvas.onmousemove = inputMove;
@@ -330,18 +364,45 @@ function redraw()
         }
     }
 
-    if (path.length > 0) {
+
+    if (selectedCharacter instanceof Character && selectedCharacter.path.length > 0) {
         ctx.strokeStyle = '#ff0000';
         ctx.lineWidth = 2;
         ctx.beginPath();
 
-        ctx.moveTo(path[0].x+City.transX, path[0].y+City.transY);
-        for (var i=1; i < path.length;i++) {
-            ctx.lineTo(path[i].x+City.transX, path[i].y+City.transY);
+        ctx.moveTo(selectedCharacter.path[0].x+City.transX, selectedCharacter.path[0].y+City.transY);
+        for (var i=1; i < selectedCharacter.path.length;i++) {
+            ctx.lineTo(selectedCharacter.path[i].x+City.transX, selectedCharacter.path[i].y+City.transY);
         }
 
         ctx.stroke();
     }
+    let j;
+    // Let's do some character based stuff here
+    for (j=0; j< characters.length; j++) {
+        characters[j].draw(ctx);
+        characters[j].isTarget = false;
+        // Is the character an enemy?
+        if (characters[j].type === Character.TYPE_PLAYER) {
+            // Let's loop through other characters
+            for (i=0; i< characters.length; i++) {
+                // Are there any player characters in the enemy's FOV?
+                if (
+                    characters[i].type === Character.TYPE_ENEMY &&
+                    characters[j].distance(characters[i].x, characters[i].y) < 200 &&
+                    characters[i].fov.pointInPolygon(characters[j]) &&
+                    characters[i].action === Character.ACTION_IDLE
+                ) {
+                    // Set the player character as the enemy's target
+                    characters[i].target = characters[j];
+                    characters[j].isTarget = true;
+                    // characters[i].action = Character.ACTION_CHASING;
+                    // characters[i].chase();
+                }
+            }
+        }
+    }
+
     requestAnimationFrame(redraw);
 }
 

@@ -97,6 +97,10 @@ export default class City
                     tile.north = this.tiles[i-1][j];
                 }
                 this.tiles[i].push(tile);
+                if (City.worldTiles[i+(this.worldLoc.y*City.height)] === undefined) {
+                    City.worldTiles[i+(this.worldLoc.y*City.height)] = [];
+                }
+                City.worldTiles[i+(this.worldLoc.y*City.height)][j+(this.worldLoc.x*City.width)] = tile;
             }
         }
     }
@@ -225,12 +229,19 @@ export default class City
                         // Just create a single square poly
                         this.tiles[y][x].roadProcessed = true;
                         var road = new Road(roadLoc, roadLoc, entrances, this.worldLoc);
+                        this.tiles[y][x].polys.push(road.poly);
                         this.roads.push(road);
                     } else if (this.tiles[y][x].roadProcessed === false) {
                         // It's a straight piece of road, let's find siblings!
                         let destPoint = this.tiles[y][x].followRoad();
                         // TODO need to get the entrances of middle road pieces (they're in the destPoint object now)
                         var road = new Road(roadLoc, new Point(destPoint.x,destPoint.y), destPoint.doors, this.worldLoc);
+                        let y2,x2;
+                        for (y2 = roadLoc.y; y2 <= destPoint.y; y2++) {
+                        	for (x2 = roadLoc.x; x2 <= destPoint.x; x2++) {
+                        	    this.tiles[y2][x2].polys.push(road.poly);
+                            }
+                        }
                         this.roads.push(road);
                     }
                     /*
@@ -431,10 +442,11 @@ export default class City
 			bottom = yLoc;
 		}
 
+		let x,y;
 		// check to see if all tiles within this area are empty
 		let allEmpty = true;
-		for(let y=top;y<=bottom;y++){
-			for(let x=left;x<=right;x++){
+		for(y=top;y<=bottom;y++){
+			for(x=left;x<=right;x++){
 				if (!this.isTileEmpty(x,y)) {
 					allEmpty = false;
 				}
@@ -466,11 +478,21 @@ export default class City
             if (building.rooms[i].bottom === bottom+1 && building.rooms[i].doors.south === true && (this.tiles[room.bottom+1]) !== undefined) {
                 this.tiles[room.bottom][room.left].buildingAccess.north = true;
             }
+            let z;
+            for (y=room.top; y <= room.bottom-1; y++) {
+                for (x=room.left; x <= room.right-1; x++) {
+                    for (z=0; z <= room.polys.length; z++) {
+                        if (room.polys[z] !== undefined) {
+                        	this.tiles[y][x].polys.push(room.polys[z]);
+						}
+                    }
+                }
+            }
         }
 
 		// Let's change to building
-		for(let y=top;y<=bottom;y++){
-			for(let x=left;x<=right;x++){
+		for(y=top;y<=bottom;y++){
+			for(x=left;x<=right;x++){
 				this.tiles[y][x].type = Tile.TYPE_BUILDING;
 
 
@@ -581,6 +603,38 @@ export default class City
 		// Array containing the buildings details
 		this.buildings = [];
 	}
+
+	// Find a random tile, used in enemy idle movement
+	static randomTile()
+	{
+		let rnd = Math.floor(Math.random()*9);
+		let block;
+		if (rnd === 0) {
+			block = City.blocks.northWest;
+		} else if (rnd === 1) {
+			block = City.blocks.north;
+		} else if (rnd === 2) {
+			block = City.blocks.northEast;
+		} else if (rnd === 3) {
+			block = City.blocks.west;
+		} else if (rnd === 4) {
+			block = City.blocks.center;
+		} else if (rnd === 5) {
+			block = City.blocks.east;
+		} else if (rnd === 6) {
+			block = City.blocks.southWest;
+		} else if (rnd === 7) {
+			block = City.blocks.south;
+		} else if (rnd === 8) {
+			block = City.blocks.southEast;
+        }
+        let rndX = Math.floor(Math.random()*City.width), rndY = Math.floor(Math.random()*City.height);
+		if (block.tiles[rndY][rndX].type === Tile.TYPE_ROAD) {
+			return block.tiles[rndY][rndX];
+		} else {
+			return City.randomTile();
+		}
+	}
 };
 City.SIDE_NORTH = 1;
 City.SIDE_SOUTH = 2;
@@ -606,3 +660,6 @@ City.blocks = {};
 
 City.width = 16;
 City.height = 16;
+
+/** @type {Array<Array<Tile>>} */
+City.worldTiles = []
