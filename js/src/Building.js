@@ -126,6 +126,7 @@ export default class Building{
                 doorPoly.process();
                 this.roomPolys.push(doorPoly);
                 doors.push(doorPoly);
+                this.rooms[i].polys.push(doorPoly);
             }
 
             if (this.rooms[i].doors.east) {
@@ -138,6 +139,7 @@ export default class Building{
                 doorPoly.process();
                 this.roomPolys.push(doorPoly);
                 doors.push(doorPoly);
+                this.rooms[i].polys.push(doorPoly);
             }
 
             if (this.rooms[i].doors.south) {
@@ -150,6 +152,7 @@ export default class Building{
                 doorPoly.process();
                 this.roomPolys.push(doorPoly);
                 doors.push(doorPoly);
+                this.rooms[i].polys.push(doorPoly);
             }
 
             if (this.rooms[i].doors.west) {
@@ -162,13 +165,13 @@ export default class Building{
                 doorPoly.process();
                 this.roomPolys.push(doorPoly);
                 doors.push(doorPoly);
+                this.rooms[i].polys.push(doorPoly);
             }
         }
 
         // loop through again to get the door nodes
         let poly;
         for (let i = 0; i < this.rooms.length; i++) {
-            
             let top = (this.rooms[i].top*Tile.SIZE) + (this.worldLoc.y * City.height * Tile.SIZE);
             let left = (this.rooms[i].left*Tile.SIZE) + (this.worldLoc.x * City.width * Tile.SIZE);
             let bottom = (this.rooms[i].bottom*Tile.SIZE) + (this.worldLoc.y * City.height * Tile.SIZE);
@@ -279,6 +282,7 @@ export default class Building{
             City.polyPath.addPoly(poly);
             poly.process();
             this.roomPolys.push(poly);
+            this.rooms[i].polys.push(poly);
 
         }
         Building.doRooms = false;

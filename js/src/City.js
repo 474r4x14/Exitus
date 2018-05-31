@@ -97,6 +97,10 @@ export default class City
                     tile.north = this.tiles[i-1][j];
                 }
                 this.tiles[i].push(tile);
+                if (City.worldTiles[j+(this.worldLoc.y*City.height)] === undefined) {
+                    City.worldTiles[j+(this.worldLoc.y*City.height)] = [];
+                }
+                City.worldTiles[j+(this.worldLoc.y*City.height)][i+(this.worldLoc.x*City.width)] = tile;
             }
         }
     }
@@ -225,12 +229,19 @@ export default class City
                         // Just create a single square poly
                         this.tiles[y][x].roadProcessed = true;
                         var road = new Road(roadLoc, roadLoc, entrances, this.worldLoc);
+                        this.tiles[y][x].polys.push(road.poly);
                         this.roads.push(road);
                     } else if (this.tiles[y][x].roadProcessed === false) {
                         // It's a straight piece of road, let's find siblings!
                         let destPoint = this.tiles[y][x].followRoad();
                         // TODO need to get the entrances of middle road pieces (they're in the destPoint object now)
                         var road = new Road(roadLoc, new Point(destPoint.x,destPoint.y), destPoint.doors, this.worldLoc);
+                        let y2,x2;
+                        for (y2 = roadLoc.y; y2 <= destPoint.y; y2++) {
+                        	for (x2 = roadLoc.x; x2 <= destPoint.x; x2++) {
+                        	    this.tiles[y2][x2].polys.push(road.poly);
+                            }
+                        }
                         this.roads.push(road);
                     }
                     /*
@@ -431,10 +442,11 @@ export default class City
 			bottom = yLoc;
 		}
 
+		let x,y;
 		// check to see if all tiles within this area are empty
 		let allEmpty = true;
-		for(let y=top;y<=bottom;y++){
-			for(let x=left;x<=right;x++){
+		for(y=top;y<=bottom;y++){
+			for(x=left;x<=right;x++){
 				if (!this.isTileEmpty(x,y)) {
 					allEmpty = false;
 				}
@@ -466,11 +478,20 @@ export default class City
             if (building.rooms[i].bottom === bottom+1 && building.rooms[i].doors.south === true && (this.tiles[room.bottom+1]) !== undefined) {
                 this.tiles[room.bottom][room.left].buildingAccess.north = true;
             }
+            let z;
+            for (y=room.top; y <= room.bottom-1; y++) {
+                for (x=room.left; x <= room.right-1; x++) {
+                    for (z=0; z <= room.polys.length; z++) {
+                        // console.log(City.worldTiles[y][x], City.worldTiles,x,y);
+                        this.tiles[y][x].polys.push(room.polys[z]);
+                    }
+                }
+            }
         }
 
 		// Let's change to building
-		for(let y=top;y<=bottom;y++){
-			for(let x=left;x<=right;x++){
+		for(y=top;y<=bottom;y++){
+			for(x=left;x<=right;x++){
 				this.tiles[y][x].type = Tile.TYPE_BUILDING;
 
 
@@ -638,3 +659,6 @@ City.blocks = {};
 
 City.width = 16;
 City.height = 16;
+
+/** @type {Array<Array<Tile>>} */
+City.worldTiles = []

@@ -10,7 +10,7 @@ export default class PolyRayItem extends PolyItem{
     }
 
 
-    addRay(originX, originY, destX, destY)
+    addRay(originX, originY, destX, destY, polys)
     {
         // Get the rotation
         var dx = destX - originX;
@@ -21,22 +21,16 @@ export default class PolyRayItem extends PolyItem{
         let ray = new Point(originX,originY);
         let working = true;
         let vx, vy, i;
-        while (ray.distance(destX,destY) > 6 && working) {
+        while (ray.distance(destX,destY) > 4 && working) {
             // Check along rotation path
 
-            vx = Math.cos(rotation*Math.PI/180)*(6);
-            vy = Math.sin(rotation*Math.PI/180)*(6);
-            // console.log(City.polyPath);
+            vx = Math.cos(rotation*Math.PI/180)*(4);
+            vy = Math.sin(rotation*Math.PI/180)*(4);
             let hit = false;
-            for (i = 0; i < City.polyPath.polyItems.length; i++) {
-                if (City.polyPath.polyItems[i].edges[0]._startY+City.transY > 0 &&
-                    City.polyPath.polyItems[i].edges[0]._endY+City.transY < 2000 &&
-                    City.polyPath.polyItems[i].edges[0]._startX+City.transX > 0 &&
-                    City.polyPath.polyItems[i].edges[0]._endX+City.transX < 2000) {
-                    if (City.polyPath.polyItems[i].pointInPolygon(new Point(ray.x + vx, ray.y + vy))) {
-                        hit = true;
-                        continue;
-                    }
+            for (i = 0; i < polys.length; i++) {
+                if (polys[i] !== undefined && polys[i].pointInPolygon(new Point(ray.x + vx, ray.y + vy))) {
+                    hit = true;
+                    continue;
                 }
             }
             if (!hit) {
