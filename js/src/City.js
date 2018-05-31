@@ -97,10 +97,10 @@ export default class City
                     tile.north = this.tiles[i-1][j];
                 }
                 this.tiles[i].push(tile);
-                if (City.worldTiles[j+(this.worldLoc.y*City.height)] === undefined) {
-                    City.worldTiles[j+(this.worldLoc.y*City.height)] = [];
+                if (City.worldTiles[i+(this.worldLoc.y*City.height)] === undefined) {
+                    City.worldTiles[i+(this.worldLoc.y*City.height)] = [];
                 }
-                City.worldTiles[j+(this.worldLoc.y*City.height)][i+(this.worldLoc.x*City.width)] = tile;
+                City.worldTiles[i+(this.worldLoc.y*City.height)][j+(this.worldLoc.x*City.width)] = tile;
             }
         }
     }
@@ -482,8 +482,9 @@ export default class City
             for (y=room.top; y <= room.bottom-1; y++) {
                 for (x=room.left; x <= room.right-1; x++) {
                     for (z=0; z <= room.polys.length; z++) {
-                        // console.log(City.worldTiles[y][x], City.worldTiles,x,y);
-                        this.tiles[y][x].polys.push(room.polys[z]);
+                        if (room.polys[z] !== undefined) {
+                        	this.tiles[y][x].polys.push(room.polys[z]);
+						}
                     }
                 }
             }

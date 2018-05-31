@@ -109,13 +109,14 @@ export default class Character extends RotationObject
     updateFOV()
     {
         // The non-blocking polys
-        // TODO populate this & send to addRay method
         let fovPolys = [];
         let y,x,z;
         for (y = this.worldTilePos.y-5; y <= this.worldTilePos.y+5; y++) {
             for (x = this.worldTilePos.x-5; x <= this.worldTilePos.x+5; x++) {
-                for (z = 0; z < City.worldTiles[y][x].polys.length; z++) {
-                    fovPolys.push(City.worldTiles[y][x].polys[z]);
+                if (City.worldTiles[y][x].polys.length > 0) {
+                    for (z = 0; z < City.worldTiles[y][x].polys.length; z++) {
+                        fovPolys.push(City.worldTiles[y][x].polys[z]);
+                    }
                 }
             }
         }
