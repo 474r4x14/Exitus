@@ -390,14 +390,19 @@ function redraw()
                 if (
                     characters[i].type === Character.TYPE_ENEMY &&
                     characters[j].distance(characters[i].x, characters[i].y) < 200 &&
-                    characters[i].fov.pointInPolygon(characters[j]) &&
-                    characters[i].action === Character.ACTION_IDLE
+                    characters[i].action === Character.ACTION_IDLE &&
+                    characters[i].fov.pointInPolygon(characters[j])
                 ) {
                     // Set the player character as the enemy's target
                     characters[i].target = characters[j];
                     characters[j].isTarget = true;
-                    // characters[i].action = Character.ACTION_CHASING;
-                    // characters[i].chase();
+                    characters[i].action = Character.ACTION_CHASING;
+                    characters[i].chase();
+                } else if (
+                    characters[i].action === Character.ACTION_CHASING &&
+                    characters[i].target === characters[j]
+                ) {
+                    characters[i].chase();
                 }
             }
         }

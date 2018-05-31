@@ -15,6 +15,7 @@ export default class Character extends RotationObject
             this.speed = .25;
         }
         this.target = null;
+        this.targetLastLocation = new Point();
         this.type = type;
         this.active = false;
 
@@ -47,6 +48,38 @@ export default class Character extends RotationObject
             }
         }
     }
+
+    chase()
+    {
+        // If line of sight, just move towards target else use path finding
+        if (this.target instanceof Character) {
+            // Can we see the target?
+            if (this.fov.pointInPolygon(this.target)) {
+                this.targetLastLocation.x = this.target.x;
+                this.targetLastLocation.y = this.target.y;
+                this.path.length = 0;
+                var dx = this.target.x - this.x;
+                var dy = this.target.y - this.y;
+                var radians = Math.atan2(dy, dx);
+                this.rotation = radians * 180 / Math.PI;
+                this.lookingRotation = this.rotation;
+                this.move();
+            } else {
+                // can't see the target, let's go to their last known location
+                this.action = Character.ACTION_IDLE;
+                let pathNodes = City.polyPath.clickCheck(this.x, this.y, this.targetLastLocation.x, this.targetLastLocation.y);
+                if (pathNodes) {
+                    this.path = [];
+                    for (var x = 0; x < pathNodes.length; x++) {
+                        this.path.push(pathNodes[x].centre);
+                    }
+                }
+
+            }
+        }
+    }
+
+
     draw(context)
     {
         if (this.path.length > 0) {
