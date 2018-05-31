@@ -15,6 +15,7 @@ export default class Room
             east: false,
             west: false
         };
+        this.polys = [];
     }
 
     hasBlock(point)

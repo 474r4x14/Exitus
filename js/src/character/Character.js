@@ -3,6 +3,7 @@ import Point from "../utils/Point";
 import City from "../City";
 import PolyItem from "../poly/PolyItem";
 import Tile from "../Tile";
+import PolyRayItem from "../poly/PolyRayItem";
 export default class Character extends RotationObject
 {
     constructor(x,y,type){
@@ -17,7 +18,7 @@ export default class Character extends RotationObject
         this.type = type;
         this.active = false;
 
-        this.fov = new PolyItem();
+        this.fov = new PolyRayItem();
         let pos = new Point(this.x+City.transX,this.y+City.transY);
         let vx, vy;
         vx = Math.cos((this.lookingRotation-20)*Math.PI/180)*(50);
@@ -38,7 +39,6 @@ export default class Character extends RotationObject
     enemyIdleDestination()
     {
         let randTile = City.randomTile();
-        console.log('randTile',randTile);
         let pathNodes = City.polyPath.clickCheck(this.x, this.y, (randTile.x*Tile.SIZE) + (Tile.SIZE/2) - City.transX, (randTile.y*Tile.SIZE) + (Tile.SIZE/2) - City.transY);
         if (pathNodes) {
             this.path = [];
@@ -102,18 +102,33 @@ export default class Character extends RotationObject
         context.lineTo(pos.x+vx,pos.y+vy);
         context.stroke();
 
+        this.updateFOV();
+        this.fov.draw(context);
+    }
 
+    updateFOV()
+    {
+        // The non-blocking polys
+        // TODO populate this & send to addRay method
+        let fovPolys = [];
+        let y,x,z;
+        for (y = this.worldTilePos.y-5; y <= this.worldTilePos.y+5; y++) {
+            for (x = this.worldTilePos.x-5; x <= this.worldTilePos.x+5; x++) {
+                for (z = 0; z < City.worldTiles[y][x].polys.length; z++) {
+                    fovPolys.push(City.worldTiles[y][x].polys[z]);
+                }
+            }
+        }
+
+        let pos,vx,vy;
         pos = new Point(this.x,this.y);
         this.fov._nodes = [];
-        vx = Math.cos((this.lookingRotation-20)*Math.PI/180)*(50);
-        vy = Math.sin((this.lookingRotation-20)*Math.PI/180)*(50);
         this.fov.addNode(pos.x,pos.y);
-        this.fov.addNode(pos.x+vx,pos.y+vy);
-        vx = Math.cos((this.lookingRotation+20)*Math.PI/180)*(50);
-        vy = Math.sin((this.lookingRotation+20)*Math.PI/180)*(50);
-        this.fov.addNode(pos.x+vx,pos.y+vy);
-
-        this.fov.draw(context);
+        for (let i = -20; i <= 20; i+=5) {
+            vx = Math.cos((this.lookingRotation+i)*Math.PI/180)*(200);
+            vy = Math.sin((this.lookingRotation+i)*Math.PI/180)*(200);
+            this.fov.addRay(pos.x,pos.y,pos.x+vx, pos.y+vy, fovPolys);
+        }
     }
 
     lookAt(location)
@@ -122,6 +137,11 @@ export default class Character extends RotationObject
         var dy = location.y - this.y-City.transY;
         var radians = Math.atan2(dy, dx);
         this.lookingRotation = radians * 180 / Math.PI;
+    }
+
+    get worldTilePos()
+    {
+        return new Point(Math.floor(this.x/Tile.SIZE),Math.floor(this.y/Tile.SIZE));
     }
 };
 Character.TYPE_PLAYER = 1;

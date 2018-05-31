@@ -30,6 +30,9 @@ export default class Tile
             east:false,
             west:false
         };
+
+        // linked polyItems
+        this.polys = [];
     }
 
     // These are used to know what the neighbouring tiles are
