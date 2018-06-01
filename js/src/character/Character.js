@@ -15,6 +15,7 @@ export default class Character extends RotationObject
             this.speed = .25;
         }
         this.target = null;
+        this.targetLastLocation = new Point();
         this.type = type;
         this.active = false;
 
@@ -33,6 +34,10 @@ export default class Character extends RotationObject
             this.enemyIdleDestination();
         }
         this.isTarget = false;
+
+        this.fovTile = this.worldTilePos;
+
+        this.fovPolys = [];
     };
 
 
@@ -47,6 +52,37 @@ export default class Character extends RotationObject
             }
         }
     }
+
+    chase()
+    {
+        // If line of sight, just move towards target else use path finding
+        if (this.target instanceof Character) {
+            // Can we see the target?
+            if (this.fov.pointInPolygon(this.target)) {
+                this.targetLastLocation.x = this.target.x;
+                this.targetLastLocation.y = this.target.y;
+                this.path.length = 0;
+                var dx = this.target.x - this.x;
+                var dy = this.target.y - this.y;
+                var radians = Math.atan2(dy, dx);
+                this.rotation = radians * 180 / Math.PI;
+                this.lookingRotation = this.rotation;
+                this.move();
+            } else {
+                // can't see the target, let's go to their last known location
+                this.action = Character.ACTION_IDLE;
+                let pathNodes = City.polyPath.clickCheck(this.x, this.y, this.targetLastLocation.x, this.targetLastLocation.y);
+                if (pathNodes) {
+                    this.path = [];
+                    for (var x = 0; x < pathNodes.length; x++) {
+                        this.path.push(pathNodes[x].centre);
+                    }
+                }
+            }
+        }
+    }
+
+
     draw(context)
     {
         if (this.path.length > 0) {
@@ -60,7 +96,6 @@ export default class Character extends RotationObject
             if (this.type === Character.TYPE_ENEMY && this.action === Character.ACTION_IDLE) {
                 this.lookingRotation = this.rotation;
             }
-
 
             this.move();
 
@@ -103,32 +138,50 @@ export default class Character extends RotationObject
         context.stroke();
 
         this.updateFOV();
-        this.fov.draw(context);
+        this.fov.draw(context,{r:255,g:0,b:0});
     }
 
     updateFOV()
     {
+        let pos,vx,vy, poly;
+        pos = new Point(this.x,this.y);
+        // build a poly cone to reduce the polys used in the real FOV
+        poly = new PolyItem();
+        poly.addNode(pos.x,pos.y);
+        vx = Math.cos((this.lookingRotation-20)*Math.PI/180)*(200);
+        vy = Math.sin((this.lookingRotation-20)*Math.PI/180)*(200);
+        poly.addNode(pos.x+vx, pos.y+vy);
+        vx = Math.cos((this.lookingRotation+20)*Math.PI/180)*(200);
+        vy = Math.sin((this.lookingRotation+20)*Math.PI/180)*(200);
+        poly.addNode(pos.x+vx, pos.y+vy);
+        poly.process();
+        vx = Math.cos((this.lookingRotation)*Math.PI/180)*(50);
+        vy = Math.sin((this.lookingRotation)*Math.PI/180)*(50);
+        poly.addNode(pos.x+vx, pos.y+vy);
+
         // The non-blocking polys
-        let fovPolys = [];
         let y,x,z;
-        for (y = this.worldTilePos.y-5; y <= this.worldTilePos.y+5; y++) {
-            for (x = this.worldTilePos.x-5; x <= this.worldTilePos.x+5; x++) {
+
+
+        this.fovPolys = [];
+        for (y = this.worldTilePos.y - 5; y <= this.worldTilePos.y + 5; y++) {
+            for (x = this.worldTilePos.x - 5; x <= this.worldTilePos.x + 5; x++) {
                 if (City.worldTiles[y][x].polys.length > 0) {
                     for (z = 0; z < City.worldTiles[y][x].polys.length; z++) {
-                        fovPolys.push(City.worldTiles[y][x].polys[z]);
+                        if (City.worldTiles[y][x].polys[z].intersects(poly)) {
+                            this.fovPolys.push(City.worldTiles[y][x].polys[z]);
+                        }
                     }
                 }
             }
         }
 
-        let pos,vx,vy;
-        pos = new Point(this.x,this.y);
         this.fov._nodes = [];
         this.fov.addNode(pos.x,pos.y);
         for (let i = -20; i <= 20; i+=5) {
             vx = Math.cos((this.lookingRotation+i)*Math.PI/180)*(200);
             vy = Math.sin((this.lookingRotation+i)*Math.PI/180)*(200);
-            this.fov.addRay(pos.x,pos.y,pos.x+vx, pos.y+vy, fovPolys);
+            this.fov.addRay(pos.x,pos.y,pos.x+vx, pos.y+vy, this.fovPolys);
         }
     }
 
