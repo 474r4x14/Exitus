@@ -106,4 +106,19 @@ export default class PolyItem{
 			return (p.x <= x2);
 		}
 	}
+
+	intersects(poly)
+	{
+		let i;
+		for (i = 0; i < this._nodes.length; i++) {
+			if (poly.pointInPolygon(this._nodes[i])) {
+				return true;
+			}
+		}
+		for (i = 0; i < poly._nodes.length; i++) {
+			if (this.pointInPolygon(poly._nodes[i])) {
+				return true;
+			}
+		}
+	}
 };

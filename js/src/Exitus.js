@@ -3,6 +3,7 @@ import City from './City';
 import Spriteset from "./Spriteset";
 import Point from "./utils/Point";
 import Character from "./character/Character";
+import Bullet from "./character/Bullet";
 
 var isSpriteLoaded = false;
 City.blocks.center = new City();
@@ -377,9 +378,20 @@ function redraw()
 
         ctx.stroke();
     }
+
+
+    if (Bullet.bullets.length) {
+        for (i = 0; i < Bullet.bullets.length; i++) {
+            Bullet.bullets[i].draw(ctx);
+        }
+    }
+
+
+
     let j;
     // Let's do some character based stuff here
     for (j=0; j< characters.length; j++) {
+        characters[j].frame();
         characters[j].draw(ctx);
         characters[j].isTarget = false;
         // Is the character an enemy?
@@ -390,14 +402,32 @@ function redraw()
                 if (
                     characters[i].type === Character.TYPE_ENEMY &&
                     characters[j].distance(characters[i].x, characters[i].y) < 200 &&
-                    characters[i].fov.pointInPolygon(characters[j]) &&
-                    characters[i].action === Character.ACTION_IDLE
+                    characters[i].action === Character.ACTION_IDLE &&
+                    characters[i].fov.pointInPolygon(characters[j])
                 ) {
                     // Set the player character as the enemy's target
                     characters[i].target = characters[j];
                     characters[j].isTarget = true;
-                    // characters[i].action = Character.ACTION_CHASING;
-                    // characters[i].chase();
+                    characters[i].action = Character.ACTION_CHASING;
+                    characters[i].chase();
+                } else if (
+                    characters[i].type === Character.TYPE_ENEMY &&
+                    characters[j].distance(characters[i].x, characters[i].y) < 200 &&
+                    characters[j].fov.pointInPolygon(characters[i])
+                ) {
+                    // Set the enemy character as the player's target
+                    characters[j].target = characters[i];
+
+                } else if (
+                    characters[j].target === characters[i] &&
+                    !characters[j].fov.pointInPolygon(characters[i])
+                ) {
+                    characters[j].target = null;
+                } else if (
+                    characters[i].action === Character.ACTION_CHASING &&
+                    characters[i].target === characters[j]
+                ) {
+                    characters[i].chase();
                 }
             }
         }
