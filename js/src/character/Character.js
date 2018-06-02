@@ -88,6 +88,7 @@ export default class Character extends RotationObject
     {
         if (this.target instanceof Character) {
             if (
+                this.type === Character.TYPE_PLAYER &&
                 this.target instanceof Character &&
                 this.distance(this.target.x,this.target.y) < this.weapon.range &&
                 !this.weapon.isAttacking
