@@ -4,6 +4,7 @@ import City from "../City";
 import PolyItem from "../poly/PolyItem";
 import Tile from "../Tile";
 import PolyRayItem from "../poly/PolyRayItem";
+import Weapon from "./Weapon";
 export default class Character extends RotationObject
 {
     constructor(x,y,type){
@@ -18,6 +19,7 @@ export default class Character extends RotationObject
         this.targetLastLocation = new Point();
         this.type = type;
         this.active = false;
+        this.weapon = new Weapon(this);
 
         this.fov = new PolyRayItem();
         let pos = new Point(this.x+City.transX,this.y+City.transY);
@@ -82,6 +84,20 @@ export default class Character extends RotationObject
         }
     }
 
+    frame()
+    {
+        if (this.target instanceof Character) {
+            if (
+                this.target instanceof Character &&
+                this.distance(this.target.x,this.target.y) < this.weapon.range &&
+                !this.weapon.isAttacking
+            ) {
+                this.weapon.startAttack(this);
+            }
+        } else if(this.weapon.isAttacking) {
+            this.weapon.stopAttack();
+        }
+    }
 
     draw(context)
     {
