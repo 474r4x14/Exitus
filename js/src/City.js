@@ -458,7 +458,7 @@ export default class City
 			return;
 		}
 
-		let building = new Building(left, top, right-left,bottom-top, this.worldLoc);
+		let building = new Building(left, top, right-left,bottom-top, this.rand.random()*10000, this.worldLoc);
 		this.buildings.push(building);
 
         // Create joining polys for doors

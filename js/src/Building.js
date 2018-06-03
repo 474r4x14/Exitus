@@ -3,9 +3,10 @@ import Tile from "./Tile";
 import PolyItem from "./poly/PolyItem";
 import Point from "./utils/Point";
 import Room from "./Room";
+import SeededRand from "./utils/SeededRand";
 
 export default class Building{
-    constructor(x, y, width, height, worldLoc)
+    constructor(x, y, width, height, seed, worldLoc)
     {
         this.left = x;
         this.top = y;
@@ -14,6 +15,7 @@ export default class Building{
         this.right = x+width;
         this.bottom = y+height;
         this.worldLoc = worldLoc;
+        this.rand = new SeededRand(seed);
         this.rooms = [];
 
         this.poly = new PolyItem();
@@ -39,8 +41,8 @@ export default class Building{
     {
         for (let y = this.top; y <= this.bottom; y++) {
             for (let x = this.left; x <= this.right; x++) {
-                var width = (Math.floor(Math.random() * (this.width - (x-this.left)))) + 1;
-                var height = (Math.floor(Math.random() * (this.height - (y-this.top)))) + 1;
+                var width = (Math.floor(this.rand.random() * (this.width - (x-this.left)))) + 1;
+                var height = (Math.floor(this.rand.random() * (this.height - (y-this.top)))) + 1;
                 // We've got the staring x/y & width/height, let's go through each room block to make sure it's available
                 let roomCheck = new Point(x, y);
                 if (!this.roomTaken(roomCheck)) {
@@ -82,25 +84,25 @@ export default class Building{
             top += 8;
             left += 8;
             if (this.rooms[i].top === this.top) {
-                if (Math.floor(Math.random()*5) === 0) {
+                if (Math.floor(this.rand.random()*5) === 0) {
                     this.rooms[i].doors.north = true;
                 }
             }
             if (this.rooms[i].bottom-1 === this.bottom) {
                 bottom -= 8;
-                if (Math.floor(Math.random()*5) === 0) {
+                if (Math.floor(this.rand.random()*5) === 0) {
                     this.rooms[i].doors.south = true;
                 }
             }
             if (this.rooms[i].left === this.left) {
-                if (Math.floor(Math.random()*5) === 0) {
+                if (Math.floor(this.rand.random()*5) === 0) {
                     this.rooms[i].doors.west = true;
                 }
             }
             if (this.rooms[i].right-1 === this.right) {
                 right -= 8;
 
-                if (Math.floor(Math.random()*5) === 0) {
+                if (Math.floor(this.rand.random()*5) === 0) {
                     this.rooms[i].doors.east = true;
                 }
             }
